@@ -30,8 +30,7 @@ exports.createDiningOutProduct = async (req, res, next) => {
     const newDiningOutProduct = await DiningOutModel.create({
       menu: menuItems,
     });
-    console.log(newDiningOutProduct);
-    res.json({
+       res.json({
       data: newDiningOutProduct,
       success: true,
       statusCode: 200,
