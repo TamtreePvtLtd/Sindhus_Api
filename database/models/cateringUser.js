@@ -13,6 +13,7 @@ const cateringUserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  eventName: String,
   eventDate: { type: Date },
   eventTime: {
     type: String,
