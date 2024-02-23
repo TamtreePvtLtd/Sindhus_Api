@@ -6,10 +6,14 @@ const specialsModel = require("../../database/models/specials");
  */
 exports.createSpecials = async (req, res, next) => {
   try {
-      const { images } = req.body;
-      
-      const newSpecials = await specialsModel.create({ images });
-      
+    const { images } = req.body;
+
+    // Extract the data property from each image object
+    const imageStrings = images.map((image) => image.data);
+
+    // Save the array of strings to the database
+    const newSpecials = await specialsModel.create({ images: imageStrings });
+
     res.json({
       data: newSpecials,
       success: true,
@@ -19,3 +23,5 @@ exports.createSpecials = async (req, res, next) => {
     next(error);
   }
 };
+
+
