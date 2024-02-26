@@ -124,6 +124,7 @@ exports.getAllDiningOutProductswithMenuData = async (req, res, next) => {
       },
       "_id title posterURL  menu"
     );
+    products.sort((a, b) => a.title.localeCompare(b.title));
 
     const diningOutProducts = menus.map((menu) => ({
       _id: menu._id,
