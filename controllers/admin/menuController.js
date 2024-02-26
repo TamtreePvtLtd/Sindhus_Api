@@ -90,7 +90,6 @@ exports.updateMenu = async (req, res, next) => {
     }
     var updatedMenuData = {
       title: formData.title.trim(),
-      description: formData.description.trim(),
       menuType: formData.menuType,
       subMenus: updateSubmenuItems,
     };
