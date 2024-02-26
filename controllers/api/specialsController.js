@@ -15,7 +15,7 @@ exports.getAllSpecials = async (req, res, next) => {
       success: true,
       statusCode: 200,
     });
-    console.log("allSpecials", allSpecials);
+    // console.log("allSpecials", allSpecials);
   } catch (error) {
     next(error);
   }
