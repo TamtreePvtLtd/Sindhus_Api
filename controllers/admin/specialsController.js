@@ -14,12 +14,13 @@ const path = require("path");
 exports.createSpecials = async (req, res, next) => {
   try {
     const { images } = req.body;
+    console.log("images",images)
 
     
     const s3ImageUrls = await Promise.all(
       images.map(async (image) => {
         const s3FileName = await uploadToS3(
-          image.data.buffer, 
+          //  image.data.data, 
           image.originalname, 
           image.mimetype 
         );
@@ -30,7 +31,8 @@ exports.createSpecials = async (req, res, next) => {
 
     // Save the array of S3 image URLs to the database
     const newSpecials = await specialsModel.create({ images: s3ImageUrls });
-
+    console.log("newspecials", newSpecials);
+  
     res.json({
       data: newSpecials,
       success: true,
