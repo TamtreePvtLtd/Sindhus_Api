@@ -13,26 +13,26 @@ const path = require("path");
 
 exports.createSpecials = async (req, res, next) => {
   try {
-    const { images } = req.body;
-    console.log("images",images)
+    const images = req.files.filter((file) =>
+      file.fieldname.startsWith("image")
+    );
 
-    
     const s3ImageUrls = await Promise.all(
       images.map(async (image) => {
         const s3FileName = await uploadToS3(
-          //  image.data.data, 
-          image.originalname, 
-          image.mimetype 
+          image.buffer,
+          image.originalname,
+          image.mimetype
         );
         const url = `${process.env.BUCKET_URL}${s3FileName}`;
+
         return url;
       })
     );
 
     // Save the array of S3 image URLs to the database
     const newSpecials = await specialsModel.create({ images: s3ImageUrls });
-    console.log("newspecials", newSpecials);
-  
+
     res.json({
       data: newSpecials,
       success: true,
@@ -42,5 +42,3 @@ exports.createSpecials = async (req, res, next) => {
     next(error);
   }
 };
-
-
