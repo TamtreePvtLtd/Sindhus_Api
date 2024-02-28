@@ -4,10 +4,12 @@ const MenuModel = require("./menu");
 const productSchema = new mongoose.Schema(
   {
     title: String,
-    price: {
-      type: Number,
-      required: false,
-    },
+    price: [
+       {
+        size: String,
+        price: Number,
+      },
+    ],
     posterURL: String,
     images: [
       {

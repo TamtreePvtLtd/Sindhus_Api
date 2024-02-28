@@ -57,9 +57,16 @@ exports.createProduct = async (req, res, next) => {
       })
     );
 
+    // Construct the price array from the formData
+    const price = formData.price.map((item) => ({
+      size: item.size,
+      price: item.price,
+    }));
+
+    // Create a new product document with the adjusted schema
     var newProductDoc = await ProductModel.create({
       title: formData.title,
-      price: formData.price,
+      price: price,
       images: s3ImageUrls,
       cateringMenuSizeWithPrice: cateringMenuSizeWithPrice,
       dailyMenuSizeWithPrice: dailyMenuSizeWithPrice,
@@ -83,6 +90,7 @@ exports.createProduct = async (req, res, next) => {
     next(error);
   }
 };
+
 
 /**
  * @param {Request} req - The Express request object
