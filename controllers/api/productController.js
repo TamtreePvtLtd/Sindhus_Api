@@ -216,7 +216,7 @@ exports.getAllSnacksMenu = async (req, res, next) => {
               _id: "$_id",
               title: "$title",
               posterURL: "$posterURL",
-              price: "$price",
+              itemPrice: "$itemPrice",
             },
           },
         },
@@ -228,6 +228,7 @@ exports.getAllSnacksMenu = async (req, res, next) => {
         },
       },
     ]);
+console.log(JSON.stringify(snacksProducts, null, 2));
 
     res.json({ subMenus, products: snacksProducts[0]?.products || [] });
   } catch (error) {
