@@ -17,9 +17,9 @@ const cateringUserSchema = new mongoose.Schema({
   eventDate: { type: Date },
   eventTime: {
     type: String,
-
     required: true,
   },
+  
 });
 
 const CateringUserModel = mongoose.model("cateringUser", cateringUserSchema);
