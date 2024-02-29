@@ -30,6 +30,8 @@ exports.createProduct = async (req, res, next) => {
     );
 
     const menu = JSON.parse(formData.menu);
+
+    const itemSizeWithPrice = JSON.parse(formData.itemSizeWithPrice);
     const cateringMenuSizeWithPrice = JSON.parse(
       formData.cateringMenuSizeWithPrice
     );
@@ -59,7 +61,7 @@ exports.createProduct = async (req, res, next) => {
 
     var newProductDoc = await ProductModel.create({
       title: formData.title,
-      price: formData.price,
+      itemPrice: itemSizeWithPrice,
       images: s3ImageUrls,
       cateringMenuSizeWithPrice: cateringMenuSizeWithPrice,
       dailyMenuSizeWithPrice: dailyMenuSizeWithPrice,
@@ -73,7 +75,7 @@ exports.createProduct = async (req, res, next) => {
       servingSizeDescription: formData.servingSizeDescription,
       ingredients: formData.ingredients,
     });
-
+    console.log("newProductDoc", newProductDoc);
     res.json({
       data: newProductDoc,
       success: true,
