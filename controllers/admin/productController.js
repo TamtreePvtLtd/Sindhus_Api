@@ -165,6 +165,7 @@ exports.updateProduct = async (req, res, next) => {
       formData.cateringMenuSizeWithPrice
     );
     const dailyMenuSizeWithPrice = JSON.parse(formData.dailyMenuSizeWithPrice);
+    const itemSizeWithPrice = JSON.parse(formData.itemSizeWithPrice);
 
     var updatedFields = {
       _id: formData.id,
@@ -179,6 +180,7 @@ exports.updateProduct = async (req, res, next) => {
       price: formData.price,
       cateringMenuSizeWithPrice,
       dailyMenuSizeWithPrice,
+      itemSizeWithPrice,
       posterURL: posterImageUrl,
       servingSizeDescription: formData.servingSizeDescription,
       ingredients: formData.ingredients,
