@@ -61,7 +61,7 @@ exports.createProduct = async (req, res, next) => {
 
     var newProductDoc = await ProductModel.create({
       title: formData.title,
-      itemPrice: itemSizeWithPrice,
+      itemSzeWithPrice: itemSizeWithPrice,
       images: s3ImageUrls,
       cateringMenuSizeWithPrice: cateringMenuSizeWithPrice,
       dailyMenuSizeWithPrice: dailyMenuSizeWithPrice,

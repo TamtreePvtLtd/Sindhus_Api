@@ -4,7 +4,7 @@ const MenuModel = require("./menu");
 const productSchema = new mongoose.Schema(
   {
     title: String,
-    itemPrice: [
+    itemSizeWithPrice: [
       {
         size: String,
         price: Number,
