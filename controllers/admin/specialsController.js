@@ -14,7 +14,7 @@ const path = require("path");
 exports.createSpecials = async (req, res, next) => {
   try {
     const images = req.files.filter((file) =>
-      file.fieldname.startsWith("images")
+      file.fieldname.startsWith("image")
     );
 
     const s3ImageUrls = await Promise.all(
