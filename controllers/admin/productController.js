@@ -75,7 +75,7 @@ exports.createProduct = async (req, res, next) => {
       servingSizeDescription: formData.servingSizeDescription,
       ingredients: formData.ingredients,
     });
-    console.log("newProductDoc", newProductDoc);
+
     res.json({
       data: newProductDoc,
       success: true,
