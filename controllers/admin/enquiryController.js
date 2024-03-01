@@ -54,3 +54,27 @@ exports.deleteEnquiry = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.changeEnquiryisResponseStatus = async (req, res, next) => {
+  try {
+    const { enquiryId } = req.params;
+
+    const enquiry = await EnquiryModel.findById(enquiryId);
+
+    if (!enquiry) {
+      return res.status(404).json({ message: "Enquiry not found" });
+    }
+
+    await EnquiryModel.findByIdAndUpdate(enquiryId, {
+      isResponse: !enquiry.isResponse,
+    });
+
+    return res.json({
+      message: "Enquiry status updated successfully.",
+      success: false,
+      statusCode: 520,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
