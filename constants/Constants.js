@@ -9,6 +9,7 @@ const SECRET_KEY = "SESHgJ0VmK";
 const ACCESS_TOKEN = "sindhus_access_token";
 const ExpirationInMilliSeconds = 172800000; //2 days
 
+
 module.exports = {
   SNACKS_MENU_TYPE,
   OTHER_MENU_TYPE,
