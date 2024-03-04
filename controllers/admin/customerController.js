@@ -17,15 +17,15 @@ const UserModel = require("../../database/models/user");
  * @param {Response} res - The Express response object
  */
 exports.adminLogin = async (req, res, next) => {
-  let { phoneNumber, password } = req.body;
+  let { email, password } = req.body;
 
-  if (!phoneNumber || !password) {
+  if (!email || !password) {
     const error = new Error("Empty credentials supplied");
     error.statusCode = 454;
     throw error;
   } else {
     try {
-      const user = await UserModel.findOne({ phoneNumber });
+      const user = await UserModel.findOne({ email });
       if (!user) {
         const error = new Error("User Not Available Please Signup to continue");
         error.statusCode = 401;
@@ -39,14 +39,9 @@ exports.adminLogin = async (req, res, next) => {
         throw error;
       }
 
-      if (user.role === "customer") {
-        const error = new Error("Invalid credentials entered!");
-        error.statusCode = 500;
-        throw error;
-      }
-
       var userObj = {
         userId: user._id,
+        email:user.email,
         phoneNumber: user.phoneNumber,
         name: user.name,
       };
@@ -73,56 +68,41 @@ exports.adminLogin = async (req, res, next) => {
  * @param {Request} req - The Express request object
  * @param {Response} res - The Express response object
  */
-exports.signup = async (req, res, next) => {
-  let { name, phoneNumber, email, password, role } = req.body;
+exports.signUp = async (req, res, next) => {
+  const { name,email,phoneNumber, password } = req.body;
 
   try {
-    // Check if the user already exists
-    const existingUser = await UserModel.findOne({ phoneNumber });
-    if (existingUser) {
-      const error = new Error(
-        "Invalid User with provided phonenumber already exists entered!"
-      );
+    // Check if the email already exists
+    const existingAdmin = await AdminModel.findOne({ email });
+
+    if (existingAdmin) {
+      const error = new Error("Admin already exists");
       error.statusCode = 409;
       throw error;
-    } else {
-      const salt = 10;
-      const hashedPassword = await bcrypt.hash(password, salt);
-      const newUser = new UserModel({
-        name,
-        phoneNumber,
-        email,
-        password: hashedPassword,
-        role,
-      });
-      const savedUser = await newUser.save();
-      // Generate JWT token
-      const token = jwt.sign(
-        {
-          userId: savedUser._id,
-          phoneNumber: savedUser.phoneNumber,
-          name: savedUser.name,
-        },
-        SECRET_KEY
-      );
-
-      res
-        .cookie(ACCESS_TOKEN, token, {
-          httpOnly: true,
-          maxAge: ExpirationInMilliSeconds, //2days
-        })
-        .status(200)
-        .json({
-          message: "Signup Successful",
-          data: {
-            userId: savedUser._id,
-            phoneNumber: savedUser.phoneNumber,
-            name: savedUser.name,
-          },
-        });
     }
+else {
+    // Generate salt
+    const salt = await bcrypt.genSalt(10);
+
+    // Hash the password with the generated salt
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create new admin credentials with hashed password
+    const newAdmin = new AdminModel({ name,email,phoneNumber, password: hashedPassword });
+    const savedAdmin = await newAdmin.save();
+    res
+      .status(200)
+      .json({
+        message: "Signup Successful",
+        data: {
+          adminId: savedAdmin._id,
+          name:savedAdmin.name,
+          email:savedAdmin.email,
+          phoneNumber:savedAdmin.phoneNumber
+        },
+      });
+  }
   } catch (error) {
-    console.error(error);
     next(error);
   }
 };
