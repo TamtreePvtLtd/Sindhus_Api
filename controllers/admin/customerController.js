@@ -70,54 +70,40 @@ exports.adminLogin = async (req, res, next) => {
  * @param {Response} res - The Express response object
  */
 exports.signup = async (req, res, next) => {
-  let { name, phoneNumber, email, password } = req.body;
+  const { name,email,phoneNumber, password } = req.body;
 
   try {
-    // Check if the user already exists
-    const existingUser = await UserModel.findOne({ email });
-    if (existingUser) {
-      const error = new Error(
-        "Invalid User with provided email already exists entered!"
-      );
+    // Check if the email already exists
+    const existingAdmin = await UserModel.findOne({ email });
+
+    if (existingAdmin) {
+      const error = new Error("Admin already exists");
       error.statusCode = 409;
       throw error;
-    } else {
-      const salt = 10;
-      const hashedPassword = await bcrypt.hash(password, salt);
-      const newUser = new UserModel({
-        name,
-        phoneNumber,
-        email,
-        password: hashedPassword
-      });
-      const savedUser = await newUser.save();
-      // Generate JWT token
-      const token = jwt.sign(
-        {
-          userId: savedUser._id,
-          phoneNumber: savedUser.phoneNumber,
-          name: savedUser.name,
-        },
-        SECRET_KEY
-      );
-
-      res
-        .cookie(ACCESS_TOKEN, token, {
-          httpOnly: true,
-          maxAge: ExpirationInMilliSeconds, //2days
-        })
-        .status(200)
-        .json({
-          message: "Signup Successful",
-          data: {
-            userId: savedUser._id,
-            email: savedUser.email,
-            name: savedUser.name,
-          },
-        });
     }
+else {
+    // Generate salt
+    const salt = await bcrypt.genSalt(10);
+
+    // Hash the password with the generated salt
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create new admin credentials with hashed password
+    const newAdmin = new UserModel({ name,email,phoneNumber, password: hashedPassword });
+    const savedAdmin = await newAdmin.save();
+    res
+      .status(200)
+      .json({
+        message: "Signup Successful",
+        data: {
+          adminId: savedAdmin._id,
+          name:savedAdmin.name,
+          email:savedAdmin.email,
+          phoneNumber:savedAdmin.phoneNumber
+        },
+      });
+  }
   } catch (error) {
-    console.error(error);
     next(error);
   }
 };
@@ -272,13 +258,3 @@ exports.updatePassword = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
-
-
-
-
-
-
-
-
-
-
