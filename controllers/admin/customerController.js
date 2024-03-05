@@ -73,7 +73,7 @@ exports.signUp = async (req, res, next) => {
 
   try {
     // Check if the email already exists
-    const existingAdmin = await AdminModel.findOne({ email });
+    const existingAdmin = await UserModel.findOne({ email });
 
     if (existingAdmin) {
       const error = new Error("Admin already exists");
@@ -88,7 +88,7 @@ else {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Create new admin credentials with hashed password
-    const newAdmin = new AdminModel({ name,email,phoneNumber, password: hashedPassword });
+    const newAdmin = new UserModel({ name,email,phoneNumber, password: hashedPassword });
     const savedAdmin = await newAdmin.save();
     res
       .status(200)
