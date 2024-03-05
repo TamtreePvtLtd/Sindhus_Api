@@ -261,8 +261,9 @@ exports.updatePassword = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
     // Update the password
-    user.password = newPassword;
+    user.password = hashedPassword;
     await user.save();
 
     return res.status(200).json({ message: "Password updated successfully" });
