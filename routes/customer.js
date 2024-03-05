@@ -8,7 +8,7 @@ const use = (fn) => (req, res, next) =>
 
 //Admin
 router.post("/adminLogin", use(adminCustomersController.adminLogin));
-router.post("/signup", use(adminCustomersController.signUp));
+router.post("/signup", use(adminCustomersController.signup));
 router.get("/isAuthorized", use(adminCustomersController.isAuthorized));
 router.get("/logout", use(adminCustomersController.logout));
 

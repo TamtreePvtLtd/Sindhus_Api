@@ -42,7 +42,6 @@ exports.adminLogin = async (req, res, next) => {
       var userObj = {
         userId: user._id,
         email:user.email,
-        phoneNumber: user.phoneNumber,
         name: user.name,
       };
 
@@ -68,7 +67,7 @@ exports.adminLogin = async (req, res, next) => {
  * @param {Request} req - The Express request object
  * @param {Response} res - The Express response object
  */
-exports.signUp = async (req, res, next) => {
+exports.signup = async (req, res, next) => {
   const { name,email,phoneNumber, password } = req.body;
 
   try {
