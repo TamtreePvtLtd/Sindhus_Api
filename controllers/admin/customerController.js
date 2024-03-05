@@ -5,6 +5,8 @@
 
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const speakeasy = require('speakeasy');
+const nodemailer = require('nodemailer');
 const {
   SECRET_KEY,
   ACCESS_TOKEN,
@@ -41,7 +43,7 @@ exports.adminLogin = async (req, res, next) => {
 
       var userObj = {
         userId: user._id,
-        email:user.email,
+        email: user.email,
         name: user.name,
       };
 
@@ -153,4 +155,106 @@ exports.logout = async (req, res) => {
     message: "Logged out successfully",
     data: null,
   });
+};
+
+
+
+
+/**
+ * @param {Request} req - The Express request object
+ * @param {Response} res - The Express response object
+ */
+
+
+
+// Nodemailer transporter configuration
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'logeswaran2108@gmail.com',
+    pass: 'gnwd bggl urll soxt',
+  },
+});
+
+
+const otps = {};
+
+// Function to generate a random OTP
+function generateOTP() {
+    return speakeasy.totp({
+        secret: speakeasy.generateSecret().base32,
+        digits: 6,
+        step: 300 // OTP changes every 5 minutes
+    });
+}
+
+// Controller to send OTP to email
+exports.requestOtp = (req, res) => {
+  const { email } = req.body;
+  const otp = generateOTP();
+  otps[email] = otp;
+
+
+    // Send email with OTP
+     transporter.sendMail({
+    from: 'logeswaran2108@gmail.com',
+    to: email,
+    subject: 'OTP for Password Reset',
+    text: `Your OTP for password reset is: ${otp}
+                OTP only valid for 5 mins`
+  }, (error, info) => {
+    if (error) {
+      console.error('Error sending email:', error);
+      return res.status(500).json({ message: 'Error sending OTP email' });
+    }
+    console.log('Email sent:', info.response);
+    res.json({ message: 'OTP sent to email successfully' });
+  });
+};
+
+
+exports.verifyOtp = async (req, res) => {
+  const { otp, email } = req.body;
+
+  if (!email) {
+      return res.status(400).json({ message: 'Email not found in request' });
+  }
+
+  const storedOtp = otps[email];
+
+  if (!storedOtp) {
+      return res.status(400).json({ message: 'OTP not found for the provided email' });
+  }
+
+  if (storedOtp === otp) {
+      // If OTP is valid, you can delete it from memory
+      delete otps[email];
+      return res.json({ message: 'OTP verified successfully' });
+  } else {
+      return res.status(400).json({ message: 'Invalid OTP' });
+  }
+};
+
+
+exports.updatePassword = async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  try {
+    // Find the user by email
+    const user = await UserModel.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
+    // Update the password
+    user.password = hashedPassword;
+    await user.save();
+
+    return res.status(200).json({ message: "Password updated successfully" });
+  } catch (error) {
+    console.error("Error updating password:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
 };

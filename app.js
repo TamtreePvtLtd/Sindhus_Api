@@ -3,6 +3,7 @@ require("dotenv").config();
 var cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 var cors = require("cors");
+const session = require('express-session');
 
 const app = express();
 
@@ -12,6 +13,15 @@ const connectionString = process.env.CONNECTION_STRING || "";
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(session({
+  secret: 'Password',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 3600000, 
+    httpOnly: true, 
+  },
+}));
 
 //Routes imports goes here
 var menuRouter = require("./routes/menu");
