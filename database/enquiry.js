@@ -9,6 +9,7 @@ const EnquirySchema = new mongoose.Schema(
     guestCount: Number,
     typeOfEvent: String,
     eventDate: { type: Date },
+    isResponse: Boolean,
   },
   { timestamps: true }
 );

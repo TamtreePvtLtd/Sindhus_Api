@@ -21,4 +21,9 @@ router.delete(
   "/deleteEnquiry/:enquiryId",
   use(adminEnquiryController.deleteEnquiry)
 );
+router.put(
+  "/changeEnquiryisResponseStatus/:enquiryId",
+
+  use(adminEnquiryController.changeEnquiryisResponseStatus)
+);
 module.exports = router;
