@@ -1,6 +1,4 @@
 const specialsModel = require("../../database/models/specials");
-const { deleteFromS3 } = require("../../config/s3Config");
-const path = require("path");
 
 /**
  * @param {Request} req - The Express request object
