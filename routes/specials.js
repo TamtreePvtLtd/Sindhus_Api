@@ -17,5 +17,10 @@ router.post(
   use(specialsControlleradmin.createSpecials)
 );
 router.get("/getAllSpecials", use(specialsControllerUser.getAllSpecials));
+router.delete(
+  "/deleteSpecial/:specialId",
+
+  use(specialsControlleradmin.deleteSpecial)
+);
 
 module.exports = router;
