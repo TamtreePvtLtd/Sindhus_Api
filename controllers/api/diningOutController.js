@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const DiningOutModel = require("../../database/models/diningOut");
 const MenuModel = require("../../database/models/menu");
 const { SNACKS_MENU_TYPE } = require("../../constants/Constants");
+const Fuse = require("fuse.js");
 
 /**
  * @param {Request} req - The Express request object
@@ -269,17 +270,79 @@ exports.getDiningOutMenus = async (req, res, next) => {
  * @param {Response} res - The Express response object
  */
 
+// exports.searchDiningOutProduct = async (req, res, next) => {
+//   const { menuId } = req.params;
+//   const { searchTerm } = req.query;
+//   console.log(searchTerm);
+
+//   try {
+//     let matchQuery = {};
+
+//     // if (!menuId && !searchTerm) {
+//     //   return res.json([]); // Return here to prevent further execution
+//     // }
+
+//     if (menuId) {
+//       matchQuery["menu.mainMenuId"] = new mongoose.Types.ObjectId(menuId);
+//     }
+
+//     const products = await DiningOutModel.aggregate([
+//       {
+//         $unwind: "$menu",
+//       },
+//       {
+//         $match: matchQuery,
+//       },
+//       {
+//         $lookup: {
+//           from: "products",
+//           localField: "menu.productIds",
+//           foreignField: "_id",
+//           as: "product",
+//         },
+//       },
+
+//       {
+//         $unwind: "$product",
+//       },
+//       // {
+//       //   $match: {
+//       //     "product.title": { $regex: new RegExp(searchTerm, "i") },
+//       //   },
+//       // },
+//       {
+//         $group: {
+//           _id: "$product._id",
+//           title: { $first: "$product.title" },
+//           posterURL: { $first: "$product.posterURL" },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 1,
+//           title: 1,
+//           posterURL: 1,
+//         },
+//       },
+//     ]);
+
+//     res.json(products);
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+
 exports.searchDiningOutProduct = async (req, res, next) => {
   const { menuId } = req.params;
   const { searchTerm } = req.query;
   console.log(searchTerm);
-
   try {
     let matchQuery = {};
 
-    // if (!menuId && !searchTerm) {
-    //   return res.json([]); // Return here to prevent further execution
-    // }
+    if (!menuId && !searchTerm) {
+      res.json([]);
+    }
 
     if (menuId) {
       matchQuery["menu.mainMenuId"] = new mongoose.Types.ObjectId(menuId);
@@ -300,7 +363,6 @@ exports.searchDiningOutProduct = async (req, res, next) => {
           as: "product",
         },
       },
-
       {
         $unwind: "$product",
       },
@@ -325,7 +387,17 @@ exports.searchDiningOutProduct = async (req, res, next) => {
       },
     ]);
 
-    res.json(products);
+    const fuseOptions = {
+      includeScore: true,
+      threshold: 0.5,
+      keys: ["title"],
+      minMatchCharLength: 3,
+    };
+
+    const fuse = new Fuse(products, fuseOptions);
+    const searchResults = searchTerm ? fuse.search(searchTerm) : products;
+    console.log("fss", searchResults);
+    res.json(searchResults);
   } catch (error) {
     next(error);
   }
