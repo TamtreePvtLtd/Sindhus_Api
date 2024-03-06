@@ -58,6 +58,24 @@ exports.getAllDiningOutProducts = async (req, res, next) => {
         },
       },
       {
+        $unwind: "$products", // Unwind the products array
+      },
+      {
+        $sort: {
+          "products.title": 1, // Sort the products by title in ascending order
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          mainMenuId: { $first: "$mainMenuId" },
+          products: { $push: "$products" }, // Push the sorted products back into an array
+        },
+      },
+      {
+        $sort: { "mainMenuId.title": 1 }, // Sort the result by menu title
+      },
+      {
         $project: {
           _id: 0,
           menuDatas: {

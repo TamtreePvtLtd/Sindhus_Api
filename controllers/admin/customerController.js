@@ -5,6 +5,8 @@
 
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const speakeasy = require('speakeasy');
+const nodemailer = require('nodemailer');
 const {
   SECRET_KEY,
   ACCESS_TOKEN,
@@ -17,15 +19,15 @@ const UserModel = require("../../database/models/user");
  * @param {Response} res - The Express response object
  */
 exports.adminLogin = async (req, res, next) => {
-  let { phoneNumber, password } = req.body;
+  let { email, password } = req.body;
 
-  if (!phoneNumber || !password) {
+  if (!email || !password) {
     const error = new Error("Empty credentials supplied");
     error.statusCode = 454;
     throw error;
   } else {
     try {
-      const user = await UserModel.findOne({ phoneNumber });
+      const user = await UserModel.findOne({ email });
       if (!user) {
         const error = new Error("User Not Available Please Signup to continue");
         error.statusCode = 401;
@@ -39,15 +41,9 @@ exports.adminLogin = async (req, res, next) => {
         throw error;
       }
 
-      if (user.role === "customer") {
-        const error = new Error("Invalid credentials entered!");
-        error.statusCode = 500;
-        throw error;
-      }
-
       var userObj = {
         userId: user._id,
-        phoneNumber: user.phoneNumber,
+        email: user.email,
         name: user.name,
       };
 
@@ -74,55 +70,40 @@ exports.adminLogin = async (req, res, next) => {
  * @param {Response} res - The Express response object
  */
 exports.signup = async (req, res, next) => {
-  let { name, phoneNumber, email, password, role } = req.body;
+  const { name,email,phoneNumber, password } = req.body;
 
   try {
-    // Check if the user already exists
-    const existingUser = await UserModel.findOne({ phoneNumber });
-    if (existingUser) {
-      const error = new Error(
-        "Invalid User with provided phonenumber already exists entered!"
-      );
+    // Check if the email already exists
+    const existingAdmin = await UserModel.findOne({ email });
+
+    if (existingAdmin) {
+      const error = new Error("Admin already exists");
       error.statusCode = 409;
       throw error;
-    } else {
-      const salt = 10;
-      const hashedPassword = await bcrypt.hash(password, salt);
-      const newUser = new UserModel({
-        name,
-        phoneNumber,
-        email,
-        password: hashedPassword,
-        role,
-      });
-      const savedUser = await newUser.save();
-      // Generate JWT token
-      const token = jwt.sign(
-        {
-          userId: savedUser._id,
-          phoneNumber: savedUser.phoneNumber,
-          name: savedUser.name,
-        },
-        SECRET_KEY
-      );
-
-      res
-        .cookie(ACCESS_TOKEN, token, {
-          httpOnly: true,
-          maxAge: ExpirationInMilliSeconds, //2days
-        })
-        .status(200)
-        .json({
-          message: "Signup Successful",
-          data: {
-            userId: savedUser._id,
-            phoneNumber: savedUser.phoneNumber,
-            name: savedUser.name,
-          },
-        });
     }
+else {
+    // Generate salt
+    const salt = await bcrypt.genSalt(10);
+
+    // Hash the password with the generated salt
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create new admin credentials with hashed password
+    const newAdmin = new UserModel({ name,email,phoneNumber, password: hashedPassword });
+    const savedAdmin = await newAdmin.save();
+    res
+      .status(200)
+      .json({
+        message: "Signup Successful",
+        data: {
+          adminId: savedAdmin._id,
+          name:savedAdmin.name,
+          email:savedAdmin.email,
+          phoneNumber:savedAdmin.phoneNumber
+        },
+      });
+  }
   } catch (error) {
-    console.error(error);
     next(error);
   }
 };
@@ -174,4 +155,106 @@ exports.logout = async (req, res) => {
     message: "Logged out successfully",
     data: null,
   });
+};
+
+
+
+
+/**
+ * @param {Request} req - The Express request object
+ * @param {Response} res - The Express response object
+ */
+
+
+
+// Nodemailer transporter configuration
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'logeswaran2108@gmail.com',
+    pass: 'gnwd bggl urll soxt',
+  },
+});
+
+
+const otps = {};
+
+// Function to generate a random OTP
+function generateOTP() {
+    return speakeasy.totp({
+        secret: speakeasy.generateSecret().base32,
+        digits: 6,
+        step: 300 // OTP changes every 5 minutes
+    });
+}
+
+// Controller to send OTP to email
+exports.requestOtp = (req, res) => {
+  const { email } = req.body;
+  const otp = generateOTP();
+  otps[email] = otp;
+
+
+    // Send email with OTP
+     transporter.sendMail({
+    from: 'logeswaran2108@gmail.com',
+    to: email,
+    subject: 'OTP for Password Reset',
+    text: `Your OTP for password reset is: ${otp}
+                OTP only valid for 5 mins`
+  }, (error, info) => {
+    if (error) {
+      console.error('Error sending email:', error);
+      return res.status(500).json({ message: 'Error sending OTP email' });
+    }
+    console.log('Email sent:', info.response);
+    res.json({ message: 'OTP sent to email successfully' });
+  });
+};
+
+
+exports.verifyOtp = async (req, res) => {
+  const { otp, email } = req.body;
+
+  if (!email) {
+      return res.status(400).json({ message: 'Email not found in request' });
+  }
+
+  const storedOtp = otps[email];
+
+  if (!storedOtp) {
+      return res.status(400).json({ message: 'OTP not found for the provided email' });
+  }
+
+  if (storedOtp === otp) {
+      // If OTP is valid, you can delete it from memory
+      delete otps[email];
+      return res.json({ message: 'OTP verified successfully' });
+  } else {
+      return res.status(400).json({ message: 'Invalid OTP' });
+  }
+};
+
+
+exports.updatePassword = async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  try {
+    // Find the user by email
+    const user = await UserModel.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
+    // Update the password
+    user.password = hashedPassword;
+    await user.save();
+
+    return res.status(200).json({ message: "Password updated successfully" });
+  } catch (error) {
+    console.error("Error updating password:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
 };
