@@ -23,3 +23,27 @@ exports.getAllMenus = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getAllMenusInCatering = async (req, res, next) => {
+  try {
+    const menuItems = await MenuModel.find();
+
+    const filteredMenuData = menuItems.filter((menuItem) => {
+      return (
+        menuItem.title.toLowerCase() !== "snacks" &&
+        menuItem.title.toLowerCase() !== "drinks"
+      );
+    });
+ console.log("filteredMenuData", filteredMenuData);
+    const menuData = filteredMenuData.map((menuItem) => ({
+      _id: menuItem._id,
+      title: menuItem.title,
+      menuType: menuItem.menuType,
+    }));
+
+    // Send the filtered menu data in the response
+    res.json(menuData);
+  } catch (error) {
+    next(error);
+  }
+};

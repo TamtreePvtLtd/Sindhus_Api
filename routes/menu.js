@@ -44,5 +44,7 @@ router.get(
 
 //api
 router.get("/getAllMenus", use(menuController.getAllMenus));
+router.get("/getAllMenusInCatering", use(menuController.getAllMenusInCatering));
+
 
 module.exports = router;
