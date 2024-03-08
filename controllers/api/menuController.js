@@ -15,7 +15,6 @@ const MENU_TYPES = {
  * @param {Response} res - The Express response object
  */
 
-
 exports.getAllMenus = async (req, res, next) => {
   try {
     const menuItems = await MenuModel.find();
@@ -51,71 +50,44 @@ const ProductModel = require("../../database/models/product");
 // const MenuModel = require("./menu");
 // const { MENU_TYPES } = require("./constants"); // Assuming MENU_TYPES is defined in a separate file
 
-
-
 exports.getMenuType3 = async (req, res, next) => {
   try {
-    // Find all menus
     const menus = await MenuModel.find({
       menuType: MENU_TYPES.OTHER_MENU_TYPE,
     });
 
     console.log("Number of menus found:", menus.length);
 
-    // Initialize an array to store formatted menu data with associated products
-    const formattedMenus = [];
-
-    // Always include all menus
     const allMenus = {
-      title: "All Menus",
       menus: menus.map((menu) => ({
         _id: menu._id,
         title: menu.title,
-        image: menu.image,
-        description: menu.description,
       })),
     };
 
-    formattedMenus.push(allMenus);
+    const menuWithProducts = []; 
 
-    // Loop through each menu
     for (const menu of menus) {
-      // Retrieve products associated with the current menu
       const products = await ProductModel.find({
         "menu.mainMenuIds": menu._id,
       });
 
-      // Extract relevant data for the menu and associated products
       const formattedMenu = {
         title: menu.title,
         id: menu._id,
-        // description: menu.description,
         products: products.map((product) => ({
           _id: product._id,
           title: product.title,
-          // price: product.price,
-          // posterURL: product.posterURL,
-          // description: product.description,
           servingSizeDescription: product.servingSizeDescription,
-          // ingredients: product.ingredients,
-          // netWeight: product.netWeight,
           cateringMenuSizeWithPrice: product.cateringMenuSizeWithPrice || [],
           dailyMenuSizeWithPrice: product.dailyMenuSizeWithPrice || [],
         })),
       };
 
-      // Push the formatted menu to the array
-      formattedMenus.push(formattedMenu);
+      menuWithProducts.push(formattedMenu); 
     }
 
-    // Prepare the response
-    const response = {
-      data: formattedMenus,
-      success: true,
-      statusCode: 200,
-    };
-
-    res.json(response);
+    res.json({ menus: allMenus.menus, menuWithProducts: menuWithProducts }); // Send both menus and menuWithProducts in the response
   } catch (error) {
     next(error);
   }
