@@ -34,7 +34,6 @@ exports.getAllMenusInCatering = async (req, res, next) => {
         menuItem.title.toLowerCase() !== "drinks"
       );
     });
- console.log("filteredMenuData", filteredMenuData);
     const menuData = filteredMenuData.map((menuItem) => ({
       _id: menuItem._id,
       title: menuItem.title,
