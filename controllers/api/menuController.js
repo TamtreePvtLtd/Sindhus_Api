@@ -87,7 +87,7 @@ exports.getMenuType3 = async (req, res, next) => {
       menuWithProducts.push(formattedMenu); 
     }
 
-    res.json({ menus: allMenus.menus, menuWithProducts: menuWithProducts }); // Send both menus and menuWithProducts in the response
+    res.json({ menus: allMenus.menus, menuWithProducts: menuWithProducts });
   } catch (error) {
     next(error);
   }
