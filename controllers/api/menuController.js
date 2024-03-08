@@ -55,47 +55,50 @@ const ProductModel = require("../../database/models/product");
 
 exports.getMenuType3 = async (req, res, next) => {
   try {
-    let menusQuery = { menuType: MENU_TYPES.OTHER_MENU_TYPE };
-
-    // If menu ID is provided in request query, filter menus by that ID
-    if (req.query.menuId) {
-      menusQuery._id = req.query.menuId;
-    }
-
-    // Find menus based on the query
-    const menus = await MenuModel.find(menusQuery);
+    // Find all menus
+    const menus = await MenuModel.find({
+      menuType: MENU_TYPES.OTHER_MENU_TYPE,
+    });
 
     console.log("Number of menus found:", menus.length);
 
     // Initialize an array to store formatted menu data with associated products
     const formattedMenus = [];
 
+    // Always include all menus
+    const allMenus = {
+      title: "All Menus",
+      menus: menus.map((menu) => ({
+        _id: menu._id,
+        title: menu.title,
+        image: menu.image,
+        description: menu.description,
+      })),
+    };
+
+    formattedMenus.push(allMenus);
+
     // Loop through each menu
     for (const menu of menus) {
-      let productsQuery = { "menu.mainMenuIds": menu._id };
-
-      // If menu ID is provided, only fetch products for that menu
-      if (req.query.menuId) {
-        productsQuery["menu.mainMenuIds"] = req.query.menuId;
-      }
-
       // Retrieve products associated with the current menu
-      const products = await ProductModel.find(productsQuery);
+      const products = await ProductModel.find({
+        "menu.mainMenuIds": menu._id,
+      });
 
       // Extract relevant data for the menu and associated products
       const formattedMenu = {
         title: menu.title,
-        image: menu.image,
-        description: menu.description,
+        id: menu._id,
+        // description: menu.description,
         products: products.map((product) => ({
           _id: product._id,
           title: product.title,
-          price: product.price,
-          posterURL: product.posterURL,
-          description: product.description,
+          // price: product.price,
+          // posterURL: product.posterURL,
+          // description: product.description,
           servingSizeDescription: product.servingSizeDescription,
-          ingredients: product.ingredients,
-          netWeight: product.netWeight,
+          // ingredients: product.ingredients,
+          // netWeight: product.netWeight,
           cateringMenuSizeWithPrice: product.cateringMenuSizeWithPrice || [],
           dailyMenuSizeWithPrice: product.dailyMenuSizeWithPrice || [],
         })),
