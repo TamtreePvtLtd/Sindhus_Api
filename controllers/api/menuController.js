@@ -55,10 +55,15 @@ const ProductModel = require("../../database/models/product");
 
 exports.getMenuType3 = async (req, res, next) => {
   try {
-    // Find menus of type OTHER_MENU_TYPE
-    const menus = await MenuModel.find({
-      menuType: MENU_TYPES.OTHER_MENU_TYPE,
-    });
+    let menusQuery = { menuType: MENU_TYPES.OTHER_MENU_TYPE };
+
+    // If menu ID is provided in request query, filter menus by that ID
+    if (req.query.menuId) {
+      menusQuery._id = req.query.menuId;
+    }
+
+    // Find menus based on the query
+    const menus = await MenuModel.find(menusQuery);
 
     console.log("Number of menus found:", menus.length);
 
@@ -67,12 +72,17 @@ exports.getMenuType3 = async (req, res, next) => {
 
     // Loop through each menu
     for (const menu of menus) {
-      // Retrieve products associated with the current menu
-      const products = await ProductModel.find({
-        "menu.mainMenuIds": menu._id,
-      });
+      let productsQuery = { "menu.mainMenuIds": menu._id };
 
-      // Extract relevant data for the menu
+      // If menu ID is provided, only fetch products for that menu
+      if (req.query.menuId) {
+        productsQuery["menu.mainMenuIds"] = req.query.menuId;
+      }
+
+      // Retrieve products associated with the current menu
+      const products = await ProductModel.find(productsQuery);
+
+      // Extract relevant data for the menu and associated products
       const formattedMenu = {
         title: menu.title,
         image: menu.image,
@@ -86,6 +96,8 @@ exports.getMenuType3 = async (req, res, next) => {
           servingSizeDescription: product.servingSizeDescription,
           ingredients: product.ingredients,
           netWeight: product.netWeight,
+          cateringMenuSizeWithPrice: product.cateringMenuSizeWithPrice || [],
+          dailyMenuSizeWithPrice: product.dailyMenuSizeWithPrice || [],
         })),
       };
 
@@ -93,11 +105,14 @@ exports.getMenuType3 = async (req, res, next) => {
       formattedMenus.push(formattedMenu);
     }
 
-    res.json({
+    // Prepare the response
+    const response = {
       data: formattedMenus,
       success: true,
       statusCode: 200,
-    });
+    };
+
+    res.json(response);
   } catch (error) {
     next(error);
   }
