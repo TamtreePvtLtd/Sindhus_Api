@@ -98,25 +98,19 @@ exports.getMenuType3 = async (req, res, next) => {
   try {
     let menusQuery = {};
 
-    // If menu ID is provided in request query, filter menus by that ID
     if (req.query.menuId) {
       menusQuery._id = req.query.menuId;
     } else {
       menusQuery.menuType = MENU_TYPES.OTHER_MENU_TYPE;
     }
 
-    // Find menus based on the query
     const menus = await MenuModel.find(menusQuery);
-
     const allmenu = await MenuModel.find({
       menuType: MENU_TYPES.OTHER_MENU_TYPE,
     });
-    console.log("Number of menus found:", menus.length);
 
-    // Initialize an array to store formatted menu data with associated products
     const formattedMenus = { menus: [], MenusWithProduct: [] };
 
-    // Always populate all menus
     const allMenus = allmenu.map((menu) => ({
       _id: menu._id,
       title: menu.title,
@@ -124,12 +118,12 @@ exports.getMenuType3 = async (req, res, next) => {
       description: menu.description,
     }));
 
-    formattedMenus.menus = [...allMenus]; // Spread the elements of allMenus into formattedMenus
+    formattedMenus.menus = [...allMenus];
 
     for (const menu of menus) {
       let productsQuery = { "menu.mainMenuIds": menu._id };
       const products = await ProductModel.find(productsQuery);
-
+      console.log(products);
       const formattedMenu = {
         title: menu.title,
         image: menu.image,
@@ -143,7 +137,7 @@ exports.getMenuType3 = async (req, res, next) => {
         })),
       };
 
-      formattedMenus.MenusWithProduct = formattedMenu;
+      formattedMenus.MenusWithProduct.push(formattedMenu);
     }
 
     res.json(formattedMenus);
