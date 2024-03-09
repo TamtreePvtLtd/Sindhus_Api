@@ -209,8 +209,12 @@ exports.getAllSnacksMenu = async (req, res, next) => {
         },
       },
       {
+        $unwind: "$menu.subMenus", // Unwind subMenus array
+      },
+      {
         $group: {
-          _id: subMenuId ? "$menu.subMenuIds" : "$mainMenus.subMenus._id",
+          _id: "$menu.subMenus._id", // Group by subMenuId
+          subMenuTitle: { $first: "$menu.subMenus.title" }, // Preserve subMenu title
           products: {
             $push: {
               _id: "$_id",
@@ -223,14 +227,17 @@ exports.getAllSnacksMenu = async (req, res, next) => {
       },
       {
         $project: {
-          products: 1,
           _id: 0,
+          subMenuId: "$_id",
+          subMenuTitle: 1,
+          products: 1,
         },
       },
     ]);
-// console.log(JSON.stringify(snacksProducts, null, 2));
 
-    res.json({ subMenus, products: snacksProducts[0]?.products || [] });
+    console.log("Submenus with Products:", snacksProducts);
+
+    res.json({ subMenus, products: snacksProducts });
   } catch (error) {
     next(error);
   }
