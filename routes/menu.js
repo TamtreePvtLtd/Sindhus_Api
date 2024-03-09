@@ -44,6 +44,8 @@ router.get(
 
 //api
 router.get("/getAllMenus", use(menuController.getAllMenus));
+router.get("/getAllMenusInCatering", use(menuController.getAllMenusInCatering));
+
 
 router.get("/getMenuType3", use(menuController.getMenuType3));
 
