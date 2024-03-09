@@ -108,7 +108,9 @@ exports.getMenuType3 = async (req, res, next) => {
     // Find menus based on the query
     const menus = await MenuModel.find(menusQuery);
 
-    const allmenu = await MenuModel.find();
+    const allmenu = await MenuModel.find({
+      menuType: MENU_TYPES.OTHER_MENU_TYPE,
+    });
     console.log("Number of menus found:", menus.length);
 
     // Initialize an array to store formatted menu data with associated products
