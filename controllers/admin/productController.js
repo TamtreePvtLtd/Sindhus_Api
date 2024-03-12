@@ -309,4 +309,12 @@ exports.getAllProduct = async (req, res, next) => {
     next(error);
   }
 };
+exports.adminGetAllProduct = async (req, res, next) => {
+  try {
+    req.paginationResult.items = await req.paginationResult.items;
 
+    res.json(req.paginationResult);
+  } catch (error) {
+    next(error);
+  }
+};
