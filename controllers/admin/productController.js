@@ -299,3 +299,22 @@ exports.getProductsByMenuId = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getAllProduct = async (req, res, next) => {
+  try {
+    const product = await ProductModel.find();
+
+    res.json(product);
+  } catch (error) {
+    next(error);
+  }
+};
+exports.adminGetAllProduct = async (req, res, next) => {
+  try {
+    req.paginationResult.items = await req.paginationResult.items;
+
+    res.json(req.paginationResult);
+  } catch (error) {
+    next(error);
+  }
+};

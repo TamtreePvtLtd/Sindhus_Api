@@ -33,6 +33,12 @@ router.delete(
 );
 
 router.get(
+  "/adminGetAllProduct",
+  // useAuth,
+  paginate(ProductModel),
+  use(productControlleradmin.adminGetAllProduct)
+);
+router.get(
   "/getAllProducts",
   useAuth,
   use(productControlleradmin.getAllProducts)
@@ -41,6 +47,12 @@ router.get(
   "/getProductsByMenuId",
   useAuth,
   productControlleradmin.getProductsByMenuId
+);
+
+router.get(
+  "/getAllProduct",
+  // useAuth,
+  productControlleradmin.getAllProduct
 );
 
 //api
