@@ -32,15 +32,22 @@ router.delete(
   use(productControlleradmin.deleteProduct)
 );
 
-router.get(
-  "/getAllProducts",
-  useAuth,
-  use(productControlleradmin.getAllProducts)
-);
+
+// router.get(
+//   "/getAllProducts",
+//   useAuth,
+//   use(productControlleradmin.getAllProducts)
+// );
 router.get(
   "/getProductsByMenuId",
   useAuth,
   productControlleradmin.getProductsByMenuId
+);
+
+router.get(
+  "/getAllProduct",
+  // useAuth,
+  productControlleradmin.getAllProduct
 );
 
 //api
