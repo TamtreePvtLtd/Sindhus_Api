@@ -210,7 +210,7 @@ exports.getAllSnacksMenu = async (req, res, next) => {
       },
       {
         $group: {
-          _id: subMenuId ? "$menu.subMenuIds" : "$mainMenus.subMenus._id",
+          _id: "$mainMenus.subMenus._id",
           products: {
             $push: {
               _id: "$_id",
@@ -228,7 +228,7 @@ exports.getAllSnacksMenu = async (req, res, next) => {
         },
       },
     ]);
-// console.log(JSON.stringify(snacksProducts, null, 2));
+    // console.log(JSON.stringify(snacksProducts, null, 2));
 
     res.json({ subMenus, products: snacksProducts[0]?.products || [] });
   } catch (error) {
