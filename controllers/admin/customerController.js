@@ -7,6 +7,9 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const speakeasy = require('speakeasy');
 const nodemailer = require('nodemailer');
+const crypto = require('crypto');
+const validator = require('validator');
+const { parsePhoneNumberFromString } = require('libphonenumber-js');
 const {
   SECRET_KEY,
   ACCESS_TOKEN,
@@ -19,49 +22,58 @@ const UserModel = require("../../database/models/user");
  * @param {Response} res - The Express response object
  */
 exports.adminLogin = async (req, res, next) => {
-  let { email, password } = req.body;
+  const { email, password } = req.body;
 
   if (!email || !password) {
     const error = new Error("Empty credentials supplied");
     error.statusCode = 454;
     throw error;
-  } else {
-    try {
-      const user = await UserModel.findOne({ email });
-      if (!user) {
-        const error = new Error("User Not Available Please Signup to continue");
-        error.statusCode = 401;
-        throw error;
-      }
+  }
 
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) {
-        const error = new Error("Invalid credentials entered!");
-        error.statusCode = 400;
-        throw error;
-      }
+  try {
+    // Find the user by email
+    const user = await UserModel.findOne({ email });
 
-      var userObj = {
-        userId: user._id,
-        email: user.email,
-        name: user.name,
-      };
-
-      const token = jwt.sign(userObj, SECRET_KEY);
-
-      res.cookie(ACCESS_TOKEN, token, {
-        httpOnly: true,
-        maxAge: ExpirationInMilliSeconds, //2 days
-      });
-
-      res.status(200).json({
-        message: "Signin successful",
-        data: userObj,
-      });
-    } catch (error) {
-      console.error(error);
-      next(error);
+    if (!user) {
+      const error = new Error("User not found");
+      error.statusCode = 401;
+      throw error;
     }
+
+    // Decrypt sensitive data
+    const decryptedEmail = decrypt(user.email);
+    const decryptedPassword = decrypt(user.password);
+
+    // Compare the decrypted password with the provided password
+    const isPasswordValid = await bcrypt.compare(password, decryptedPassword);
+
+    if (!isPasswordValid) {
+      const error = new Error("Invalid credentials entered!");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    // If credentials are valid, generate JWT token
+    const userObj = {
+      userId: user._id,
+      email: decryptedEmail,
+      name: user.name,
+    };
+
+    const token = jwt.sign(userObj, SECRET_KEY);
+
+    res.cookie(ACCESS_TOKEN, token, {
+      httpOnly: true,
+      maxAge: ExpirationInMilliSeconds, // 2 days
+    });
+
+    res.status(200).json({
+      message: "Signin successful",
+      data: userObj,
+    });
+  } catch (error) {
+    console.error(error);
+    next(error);
   }
 };
 
@@ -69,44 +81,107 @@ exports.adminLogin = async (req, res, next) => {
  * @param {Request} req - The Express request object
  * @param {Response} res - The Express response object
  */
+const securityKey = "SindhuV";
+const iv = crypto.randomBytes(16); // 16 bytes for AES
+const key = crypto.scryptSync(securityKey, 'salt', 32)
+
+// Function to encrypt data using AES
+function encrypt(text) {
+  const cipher = crypto.createCipheriv("aes-256-cbc", key, iv);
+  let encrypted = cipher.update(text, "utf-8", "hex");
+  encrypted += cipher.final("hex");
+  return encrypted;
+}
+
+// Function to decrypt data using AES
+function decrypt(encryptedText) {
+  const decipher = crypto.createDecipheriv("aes-256-cbc", key, iv);
+  let decrypted = decipher.update(encryptedText, "hex", "utf-8");
+  decrypted += decipher.final("utf-8");
+  return decrypted;
+}
+
 exports.signup = async (req, res, next) => {
-  const { name,email,phoneNumber, password } = req.body;
+  const { name, email, phoneNumber, password, address, city, state, zipcode } = req.body;
 
   try {
-    // Check if the email already exists
-    const existingAdmin = await UserModel.findOne({ email });
+    // Validate email
+    if (!validator.isEmail(email)) {
+      const error = new Error("Invalid email address");
+      error.statusCode = 422;
+      throw error;
+    }
 
-    if (existingAdmin) {
-      const error = new Error("Admin already exists");
+    // Validate phone number
+    const parsedPhoneNumber = parsePhoneNumberFromString(phoneNumber, 'US');
+    if (!parsedPhoneNumber || !parsedPhoneNumber.isValid()) {
+      const error = new Error("Invalid phone number");
+      error.statusCode = 422;
+      throw error;
+    }
+
+    // Check if the email already exists
+    const existingUserByEmail = await UserModel.findOne({ email });
+    if (existingUserByEmail) {
+      const error = new Error("Email already exists");
       error.statusCode = 409;
       throw error;
     }
-else {
-    // Generate salt
-    const salt = await bcrypt.genSalt(10);
 
-    // Hash the password with the generated salt
-    const hashedPassword = await bcrypt.hash(password, salt);
+    // Check if the phone number already exists
+    const existingUserByPhoneNumber = await UserModel.findOne({ phoneNumber });
+    if (existingUserByPhoneNumber) {
+      const error = new Error("Phone number already exists");
+      error.statusCode = 409;
+      throw error;
+    }
 
-    // Create new admin credentials with hashed password
-    const newAdmin = new UserModel({ name,email,phoneNumber, password: hashedPassword });
-    const savedAdmin = await newAdmin.save();
-    res
-      .status(200)
-      .json({
-        message: "Signup Successful",
-        data: {
-          adminId: savedAdmin._id,
-          name:savedAdmin.name,
-          email:savedAdmin.email,
-          phoneNumber:savedAdmin.phoneNumber
-        },
-      });
-  }
+    // Encrypt sensitive data before saving
+    const encryptedEmail = encrypt(email);
+    const encryptedPassword = encrypt(password);
+    const encryptedPhoneNumber = encrypt(phoneNumber);
+
+    // Create new user with encrypted sensitive data
+    const newUser = new UserModel({
+      name,
+      email: encryptedEmail,
+      phoneNumber: encryptedPhoneNumber,
+      password: encryptedPassword,
+      address,
+      city,
+      state,
+      zipcode,
+    });
+
+    // Save the new user to the database
+    const savedUser = await newUser.save();
+
+    res.status(200).json({
+      message: "Signup Successful",
+      data: {
+        userId: savedUser._id,
+        name: savedUser.name,
+        email: email, // For response, return original email
+        phoneNumber: phoneNumber, // For response, return original phoneNumber
+        address: savedUser.address,
+        city: savedUser.city,
+        state: savedUser.state,
+        zipcode: savedUser.zipcode,
+      },
+    });
   } catch (error) {
     next(error);
   }
 };
+
+// Function to decrypt user data (if needed)
+function decryptUserData(user) {
+  user.email = decrypt(user.email);
+  user.phoneNumber = decrypt(user.phoneNumber);
+  user.password = decrypt(user.password);
+  return user;
+}
+
 
 /**
  * @param {Request} req - The Express request object
