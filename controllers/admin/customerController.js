@@ -15,75 +15,12 @@ const {
   ACCESS_TOKEN,
   ExpirationInMilliSeconds,
 } = require("../../constants/Constants");
+
 const UserModel = require("../../database/models/user");
 
-/**
- * @param {Request} req - The Express request object
- * @param {Response} res - The Express response object
- */
-exports.adminLogin = async (req, res, next) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    const error = new Error("Empty credentials supplied");
-    error.statusCode = 454;
-    throw error;
-  }
-
-  try {
-    // Find the user by email
-    const user = await UserModel.findOne({ email });
-
-    if (!user) {
-      const error = new Error("User not found");
-      error.statusCode = 401;
-      throw error;
-    }
-
-    // Decrypt sensitive data
-    const decryptedEmail = decrypt(user.email);
-    const decryptedPassword = decrypt(user.password);
-
-    // Compare the decrypted password with the provided password
-    const isPasswordValid = await bcrypt.compare(password, decryptedPassword);
-
-    if (!isPasswordValid) {
-      const error = new Error("Invalid credentials entered!");
-      error.statusCode = 400;
-      throw error;
-    }
-
-    // If credentials are valid, generate JWT token
-    const userObj = {
-      userId: user._id,
-      email: decryptedEmail,
-      name: user.name,
-    };
-
-    const token = jwt.sign(userObj, SECRET_KEY);
-
-    res.cookie(ACCESS_TOKEN, token, {
-      httpOnly: true,
-      maxAge: ExpirationInMilliSeconds, // 2 days
-    });
-
-    res.status(200).json({
-      message: "Signin successful",
-      data: userObj,
-    });
-  } catch (error) {
-    console.error(error);
-    next(error);
-  }
-};
-
-/**
- * @param {Request} req - The Express request object
- * @param {Response} res - The Express response object
- */
 const securityKey = "SindhuV";
 const iv = crypto.randomBytes(16); // 16 bytes for AES
-const key = crypto.scryptSync(securityKey, 'salt', 32)
+const key = crypto.scryptSync(securityKey, 'salt', 32);
 
 // Function to encrypt data using AES
 function encrypt(text) {
@@ -101,6 +38,10 @@ function decrypt(encryptedText) {
   return decrypted;
 }
 
+/**
+ * @param {Request} req - The Express request object
+ * @param {Response} res - The Express response object
+ */
 exports.signup = async (req, res, next) => {
   const { name, email, phoneNumber, password, address, city, state, zipcode } = req.body;
 
@@ -136,9 +77,11 @@ exports.signup = async (req, res, next) => {
       throw error;
     }
 
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
     // Encrypt sensitive data before saving
     const encryptedEmail = encrypt(email);
-    const encryptedPassword = encrypt(password);
     const encryptedPhoneNumber = encrypt(phoneNumber);
 
     // Create new user with encrypted sensitive data
@@ -146,7 +89,7 @@ exports.signup = async (req, res, next) => {
       name,
       email: encryptedEmail,
       phoneNumber: encryptedPhoneNumber,
-      password: encryptedPassword,
+      password: hashedPassword,
       address,
       city,
       state,
@@ -161,8 +104,8 @@ exports.signup = async (req, res, next) => {
       data: {
         userId: savedUser._id,
         name: savedUser.name,
-        email: email, // For response, return original email
-        phoneNumber: phoneNumber, // For response, return original phoneNumber
+        email, // For response, return original email
+        phoneNumber, // For response, return original phoneNumber
         address: savedUser.address,
         city: savedUser.city,
         state: savedUser.state,
@@ -174,14 +117,69 @@ exports.signup = async (req, res, next) => {
   }
 };
 
-// Function to decrypt user data (if needed)
-function decryptUserData(user) {
-  user.email = decrypt(user.email);
-  user.phoneNumber = decrypt(user.phoneNumber);
-  user.password = decrypt(user.password);
-  return user;
-}
+/**
+ * @param {Request} req - The Express request object
+ * @param {Response} res - The Express response object
+ */
+exports.login = async (req, res, next) => {
+  const { email, password } = req.body;
 
+
+
+  try {
+
+  const decryptedEmailForSearch = decrypt(email); 
+
+    // Find the user by their email
+    const user = await UserModel.findOne({ email:decryptedEmailForSearch});
+
+    // If user not found, return error
+    if (!user) {
+      const error = new Error("User not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    // Decrypt sensitive data to compare with provided password
+    const decryptedEmail = decrypt(user.email);
+    const decryptedPhoneNumber = decrypt(user.phoneNumber);
+
+    // Compare provided email with decrypted email
+    if (decryptedEmail !== email) {
+      const error = new Error("Incorrect email");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    // Compare provided password with hashed password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      const error = new Error("Incorrect password");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    // If email and password are correct, generate JWT token
+    const token = jwt.sign(
+      { userId: user._id, email: decryptedEmail },
+      SECRET_KEY,
+      { expiresIn: ExpirationInMilliSeconds }
+    );
+
+    res.status(200).json({
+      message: "Login successful",
+      token,
+      data: {
+        userId: user._id,
+        name: user.name,
+        email: decryptedEmail,
+        phoneNumber: decryptedPhoneNumber,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 /**
  * @param {Request} req - The Express request object
@@ -232,16 +230,6 @@ exports.logout = async (req, res) => {
   });
 };
 
-
-
-
-/**
- * @param {Request} req - The Express request object
- * @param {Response} res - The Express response object
- */
-
-
-
 // Nodemailer transporter configuration
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -251,16 +239,15 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-
 const otps = {};
 
 // Function to generate a random OTP
 function generateOTP() {
-    return speakeasy.totp({
-        secret: speakeasy.generateSecret().base32,
-        digits: 6,
-        step: 300 // OTP changes every 5 minutes
-    });
+  return speakeasy.totp({
+    secret: speakeasy.generateSecret().base32,
+    digits: 6,
+    step: 300 // OTP changes every 5 minutes
+  });
 }
 
 // Controller to send OTP to email
@@ -269,14 +256,13 @@ exports.requestOtp = (req, res) => {
   const otp = generateOTP();
   otps[email] = otp;
 
-
-    // Send email with OTP
-     transporter.sendMail({
+  // Send email with OTP
+  transporter.sendMail({
     from: 'logeswaran2108@gmail.com',
     to: email,
     subject: 'OTP for Password Reset',
     text: `Your OTP for password reset is: ${otp}
-                OTP only valid for 5 mins`
+          OTP only valid for 5 mins`
   }, (error, info) => {
     if (error) {
       console.error('Error sending email:', error);
@@ -287,29 +273,27 @@ exports.requestOtp = (req, res) => {
   });
 };
 
-
 exports.verifyOtp = async (req, res) => {
   const { otp, email } = req.body;
 
   if (!email) {
-      return res.status(400).json({ message: 'Email not found in request' });
+    return res.status(400).json({ message: 'Email not found in request' });
   }
 
   const storedOtp = otps[email];
 
   if (!storedOtp) {
-      return res.status(400).json({ message: 'OTP not found for the provided email' });
+    return res.status(400).json({ message: 'OTP not found for the provided email' });
   }
 
   if (storedOtp === otp) {
-      // If OTP is valid, you can delete it from memory
-      delete otps[email];
-      return res.json({ message: 'OTP verified successfully' });
+    // If OTP is valid, you can delete it from memory
+    delete otps[email];
+    return res.json({ message: 'OTP verified successfully' });
   } else {
-      return res.status(400).json({ message: 'Invalid OTP' });
+    return res.status(400).json({ message: 'Invalid OTP' });
   }
 };
-
 
 exports.updatePassword = async (req, res) => {
   const { email, newPassword } = req.body;

@@ -31,12 +31,15 @@ const userSchema = new mongoose.Schema({
     validate: {
       validator: function(v) {
         const state = this.get('state');
-        console.log("Selected state:", state);
         const cities = City.getCitiesOfState("US", state).map(city => city.name);
-        console.log("Available cities:", cities);
+        if (cities.length === 0) return true;
         return cities.includes(v);
       },
-      message: props => `${props.value} is not a valid city for the selected state.`,
+      message: props => {
+        const state = this.get('state');
+        const cities = City.getCitiesOfState("US", state).map(city => city.name);
+        return cities.length === 0 ? "No cities available for the selected state" : `${props.value} is not a valid city for the selected state.`;
+      },
     },
   },
   state: {
@@ -54,11 +57,19 @@ const userSchema = new mongoose.Schema({
 userSchema.pre("validate", function(next) {
   const selectedState = this.state;
   console.log("Pre-validate hook - Selected state:", selectedState);
-  const cities = City.getCitiesOfState("US", selectedState).map(city => city.getAllCities.name);
+  const cities = City.getCitiesOfState("US", selectedState).map(city => city.name);
   console.log("Pre-validate hook - Available cities:", cities);
-  this.city = cities.includes(this.city) ? this.city : undefined;
+  if (cities.length === 0) {
+    // If no cities are available for the selected state, allow any city to be selected
+    this.city = this.city ? this.city : undefined;
+  } else {
+    // If cities are available, ensure the selected city is among the available options
+    this.city = cities.includes(this.city) ? this.city : undefined;
+  }
+  console.log("Pre-validate hook - Set city:", this.city);
   next();
 });
+
 
 const UserModel = mongoose.model("User", userSchema);
 
