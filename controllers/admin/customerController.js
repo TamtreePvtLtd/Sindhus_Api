@@ -13,6 +13,122 @@ const {
   ExpirationInMilliSeconds,
 } = require("../../constants/Constants");
 const UserModel = require("../../database/models/user");
+const crypto = require("crypto");
+const { State, City } = require("country-state-city");
+const validator = require("validator");
+const PhoneNumber = require("libphonenumber-js");
+
+// AES encryption/decryption key
+const AES_KEY = "SindhuV".padEnd(32, '\0')
+const IV_LENGTH = 32; // For AES, this is always 16
+
+/**
+ * Encrypt data using AES encryption
+ * @param {string} data - Data to be encrypted
+ * @returns {string} - Encrypted data with IV appended
+ */
+const encryptData = (data) => {
+  const iv = crypto.randomBytes(IV_LENGTH);
+  const cipher = crypto.createCipheriv("aes-256-cbc", Buffer.from(AES_KEY), iv);
+  let encrypted = cipher.update(data, "utf8", "hex");
+  encrypted += cipher.final("hex");
+  return iv.toString("hex") + ":" + encrypted; // Append IV to encrypted data
+};
+
+/**
+ * Decrypt data using AES decryption
+ * @param {string} encryptedData - Encrypted data with IV appended
+ * @returns {string} - Decrypted data
+ */
+const decryptData = (encryptedData) => {
+  const parts = encryptedData.split(":");
+  if (parts.length !== 2) {
+    throw new Error("Invalid encrypted data format");
+  }
+
+  const [ivHex, encryptedText] = parts;
+  const iv = Buffer.from(ivHex, "hex");
+
+  const decipher = crypto.createDecipheriv("aes-256-cbc", Buffer.from(AES_KEY), iv);
+  let decrypted = decipher.update(encryptedText, "hex", "utf8");
+  decrypted += decipher.final("utf8");
+  return decrypted;
+};
+
+/**
+ * @param {Request} req - The Express request object
+ * @param {Response} res - The Express response object
+ */
+exports.signup = async (req, res, next) => {
+  const {name, email, phoneNumber, address, city, state, zipCode, password} = req.body;
+
+  try {
+
+    if (!validator.isEmail(email)) {
+      return res.status(400).json({ message: "Invalid email format" });
+    }
+
+
+    try {
+      const parsedPhoneNumber = PhoneNumber.parsePhoneNumberFromString(phoneNumber, "US");
+      if (!parsedPhoneNumber || !parsedPhoneNumber.isValid() || !parsedPhoneNumber.isPossible()) {
+        throw new Error("Invalid US phone number format");
+      }
+    } catch (error) {
+      return res.status(400).json({ message: "Invalid US phone number format" });
+    }
+
+
+    const states = State.getStatesOfCountry("US");
+    const isValidState = states.find(usState => usState.name=== state);
+    if (!isValidState) {
+      return res.status(400).json({ message: "Invalid state" });
+    }
+
+
+    const cities = City.getCitiesOfState("US", isValidState.isoCode);
+    const isValidCity = cities.find(usCity => usCity.name === city);
+    if (!isValidCity) {
+      return res.status(400).json({ message: "Invalid city" });
+    }
+    
+
+    const encryptedEmail = encryptData(email);
+    const encryptedPhoneNumber = encryptData(phoneNumber);
+    const encryptedPassword = encryptData(password);
+    
+
+    const newUser = new UserModel({
+      name,
+      email: encryptedEmail,
+      phoneNumber: encryptedPhoneNumber,
+      address,
+      city,
+      state,
+      zipCode,
+      password: encryptedPassword
+    });
+
+    const savedUser = await newUser.save();
+
+    // Return success response
+    res.status(201).json({
+      message: "Signup Successful",
+      data: {
+        userId: savedUser._id,
+        name: savedUser.name,
+        email: decryptData(savedUser.email),
+        phoneNumber: decryptData(savedUser.phoneNumber),
+        address: savedUser.address,
+        city: savedUser.city,
+        state: savedUser.state,
+        zipCode: savedUser.zipCode
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 /**
  * @param {Request} req - The Express request object
@@ -27,14 +143,23 @@ exports.adminLogin = async (req, res, next) => {
     throw error;
   } else {
     try {
-      const user = await UserModel.findOne({ email });
-      if (!user) {
-        const error = new Error("User Not Available Please Signup to continue");
-        error.statusCode = 401;
-        throw error;
+      const users = await UserModel.find();
+
+      let foundUser;
+      for (const user of users) {
+        const decryptedEmail = decryptData(user.email); // Decrypt the email
+        if (decryptedEmail === email) {
+          foundUser = user;
+          break;
+        }
       }
 
-      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!foundUser) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    const decryptedPassword = decryptData(foundUser.password);
+      const isPasswordValid = await bcrypt.compare(password, decryptedPassword);
       if (!isPasswordValid) {
         const error = new Error("Invalid credentials entered!");
         error.statusCode = 400;
@@ -42,9 +167,9 @@ exports.adminLogin = async (req, res, next) => {
       }
 
       var userObj = {
-        userId: user._id,
-        email: user.email,
-        name: user.name,
+        userId: foundUser._id,
+        email: foundUser.email,
+        name: foundUser.name,
       };
 
       const token = jwt.sign(userObj, SECRET_KEY);
@@ -55,7 +180,7 @@ exports.adminLogin = async (req, res, next) => {
       });
 
       res.status(200).json({
-        message: "Signin successful",
+        message: "Login successful",
         data: userObj,
       });
     } catch (error) {
@@ -65,48 +190,7 @@ exports.adminLogin = async (req, res, next) => {
   }
 };
 
-/**
- * @param {Request} req - The Express request object
- * @param {Response} res - The Express response object
- */
-exports.signup = async (req, res, next) => {
-  const { name,email,phoneNumber, password } = req.body;
 
-  try {
-    // Check if the email already exists
-    const existingAdmin = await UserModel.findOne({ email });
-
-    if (existingAdmin) {
-      const error = new Error("Admin already exists");
-      error.statusCode = 409;
-      throw error;
-    }
-else {
-    // Generate salt
-    const salt = await bcrypt.genSalt(10);
-
-    // Hash the password with the generated salt
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    // Create new admin credentials with hashed password
-    const newAdmin = new UserModel({ name,email,phoneNumber, password: hashedPassword });
-    const savedAdmin = await newAdmin.save();
-    res
-      .status(200)
-      .json({
-        message: "Signup Successful",
-        data: {
-          adminId: savedAdmin._id,
-          name:savedAdmin.name,
-          email:savedAdmin.email,
-          phoneNumber:savedAdmin.phoneNumber
-        },
-      });
-  }
-  } catch (error) {
-    next(error);
-  }
-};
 
 /**
  * @param {Request} req - The Express request object

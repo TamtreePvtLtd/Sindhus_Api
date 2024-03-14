@@ -11,19 +11,22 @@
     "bcrypt": "^5.1.1",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
+    "country-state-city": "^3.2.1",
     "crypto": "^1.0.1",
     "debug": "~2.6.9",
     "dotenv": "^16.1.4",
     "env-cmd": "^10.1.0",
     "express": "^4.18.2",
-    "fuse.js": "^7.0.0",
     "express-session": "^1.18.0",
+    "fuse.js": "^7.0.0",
     "jsonwebtoken": "^9.0.2",
+    "libphonenumber-js": "^1.10.58",
     "mongoose": ">=7.3.3",
     "multer": "^1.4.5-lts.1",
     "multer-s3": "^3.0.1",
     "nodemailer": "^6.9.11",
     "nodemon": "^2.0.22",
-    "speakeasy": "^2.0.0"
+    "speakeasy": "^2.0.0",
+    "validator": "^13.11.0"
   }
 }
