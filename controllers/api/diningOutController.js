@@ -7,6 +7,7 @@ const DiningOutModel = require("../../database/models/diningOut");
 const MenuModel = require("../../database/models/menu");
 const { SNACKS_MENU_TYPE } = require("../../constants/Constants");
 const Fuse = require("fuse.js");
+const { downloadXLSX } = require('../../utils/utils');
 
 /**
  * @param {Request} req - The Express request object
@@ -88,7 +89,7 @@ exports.getAllDiningOutProducts = async (req, res, next) => {
         },
       },
     ]);
-
+ downloadXLSX(req, res, diningOutProducts);
     res.json(diningOutProducts);
   } catch (error) {
     next(error);
@@ -258,7 +259,6 @@ exports.getDiningOutMenus = async (req, res, next) => {
         }))
       )
       .flat();
-
     res.json(menuData);
   } catch (error) {
     next(error);
