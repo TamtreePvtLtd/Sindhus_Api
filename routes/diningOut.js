@@ -65,6 +65,10 @@ router.get(
   "/getAllDiningOutProducts",
   use(diningOutController.getAllDiningOutProducts)
 );
+router.get(
+  "/getAllDiningOutProductsMenuCard",
+  use(diningOutController.getAllDiningOutProductsMenuCard)
+);
 
 router.get(
   "/fetchProductsByMenuId/:menuId",

@@ -15,7 +15,7 @@ exports.downloadXLSX = (req, res, data) => {
       "Content-Disposition",
       `attachment; filename=${sheetName}.xlsx`
     );
-
+ 
     const buffer = XLSX.write(workBook, { bookType: "xlsx", type: "buffer" });
     res.end(buffer);
   } catch (error) {

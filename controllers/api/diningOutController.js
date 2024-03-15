@@ -170,8 +170,26 @@ exports.getAllDiningOutProductsMenuCard = async (req, res, next) => {
         },
       },
     ]);
-     downloadXLSX(req, res, diningOutProducts);
-    res.json(diningOutProducts);
+       const menuDatas = [];
+    diningOutProducts.forEach((menuData) => {
+      const { title, products } = menuData.menuDatas;
+      products.forEach((product) => {
+        const dailyMenuSizeWithPrice = product.dailyMenuSizeWithPrice.map(
+          (item) => `${item.size}: ${item.price}`
+        );
+        menuDatas.push({
+         menuTitle: title,
+          productTitle: product.title,
+          // posterURL: product.posterURL || "",
+          dailyMenuSizeWithPrice: dailyMenuSizeWithPrice.join(", "),
+          // price: product.price,
+          // menuType: menuData.menuDatas.menuType,
+        });
+      });
+    });;
+
+downloadXLSX(req, res, menuDatas);
+    // res.json(diningOutProducts);
   } catch (error) {
     next(error);
   }
