@@ -89,12 +89,94 @@ exports.getAllDiningOutProducts = async (req, res, next) => {
         },
       },
     ]);
- downloadXLSX(req, res, diningOutProducts);
+//  downloadXLSX(req, res, diningOutProducts);
     res.json(diningOutProducts);
   } catch (error) {
     next(error);
   }
 };
+exports.getAllDiningOutProductsMenuCard = async (req, res, next) => {
+  try {
+    const diningOutProducts = await DiningOutModel.aggregate([
+      {
+        $unwind: "$menu",
+      },
+      {
+        $lookup: {
+          from: "menus",
+          localField: "menu.mainMenuId",
+          foreignField: "_id",
+          as: "menuDetails",
+        },
+      },
+      {
+        $unwind: "$menuDetails",
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "menu.productIds",
+          foreignField: "_id",
+          as: "productDetails",
+        },
+      },
+      {
+        $unwind: "$productDetails",
+      },
+      {
+        $group: {
+          _id: "$menu.mainMenuId",
+          mainMenuId: { $first: "$menuDetails" },
+          products: {
+            $push: {
+              _id: "$productDetails._id",
+              title: "$productDetails.title",
+              posterURL: { $ifNull: ["$productDetails.posterURL", ""] },
+              dailyMenuSizeWithPrice: {
+                $ifNull: ["$productDetails.dailyMenuSizeWithPrice", null],
+              },
+              price: "$productDetails.price",
+            },
+          },
+        },
+      },
+      {
+        $unwind: "$products", // Unwind the products array
+      },
+      {
+        $sort: {
+          "products.title": 1, // Sort the products by title in ascending order
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          mainMenuId: { $first: "$mainMenuId" },
+          products: { $push: "$products" }, // Push the sorted products back into an array
+        },
+      },
+      {
+        $sort: { "mainMenuId.title": 1 }, // Sort the result by menu title
+      },
+      {
+        $project: {
+          _id: 0,
+          menuDatas: {
+            _id: "$mainMenuId._id",
+            title: "$mainMenuId.title",
+            products: "$products",
+            menuType: "$mainMenuId.menuType",
+          },
+        },
+      },
+    ]);
+     downloadXLSX(req, res, diningOutProducts);
+    res.json(diningOutProducts);
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 /**
  * @param {Request} req - The Express request object
