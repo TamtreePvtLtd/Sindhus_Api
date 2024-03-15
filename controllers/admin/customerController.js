@@ -191,10 +191,35 @@ function generateOTP() {
 // Controller to send OTP to email
 exports.requestOtp = (req, res) => {
   const { email } = req.body;
+
+  // Generate a new OTP
   const otp = generateOTP();
   otps[email] = otp;
 
+  // Send email with OTP
+  sendOtp(email, otp, res);
+};
 
+/**
+ * @param {Request} req - The Express request object
+ * @param {Response} res - The Express response object
+ */
+exports.resendOtp = (req, res) => {
+  const { email } = req.body;
+
+  // Check if an OTP already exists for the given email
+  const existingOtp = otps[email];
+
+  // If an OTP already exists, resend the existing OTP
+  if (existingOtp) {
+    sendOtp(email, existingOtp, res);
+  } else {
+    res.status(400).json({ message: 'No OTP found for the provided email. Please request a new OTP.' });
+  }
+};
+
+
+function sendOtp(email, otp, res) {
     // Send email with OTP
      transporter.sendMail({
     from: 'logeswaran2108@gmail.com',

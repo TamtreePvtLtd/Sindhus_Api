@@ -12,6 +12,7 @@ router.post("/signup", use(adminCustomersController.signup));
 router.get("/isAuthorized", use(adminCustomersController.isAuthorized));
 router.get("/logout", use(adminCustomersController.logout));
 router.post('/request-otp', use(adminCustomersController.requestOtp));
+router.post('/resend-otp', use(adminCustomersController.resendOtp));
 router.post('/verify-otp', use(adminCustomersController.verifyOtp));
 router.post('/update-password', use(adminCustomersController.updatePassword));
 
