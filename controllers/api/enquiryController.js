@@ -62,6 +62,7 @@ exports.createEnquiry = async (req, res, next) => {
     //enquired user email id
     const sindhusMailOption = {
       from: process.env.TAMTREE_EMAIL,
+      subject: "Enquiry Request Received",
       to: enquiryData.email,
       html: enquiryThanksReplyEmailContent,
     };
@@ -69,6 +70,7 @@ exports.createEnquiry = async (req, res, next) => {
     // receiver is - Sindhus mail id
     const usersMailOptions = {
       from: enquiryData.email,
+      subject: "Customer Enquiry Request",
       to: process.env.TAMTREE_EMAIL,
       html: eventDetailEmailContent,
     };
