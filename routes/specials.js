@@ -18,9 +18,13 @@ router.post(
 );
 router.get("/getAllSpecials", use(specialsControllerUser.getAllSpecials));
 router.delete(
-  "/deleteSpecial/:specialId", 
+  "/deleteSpecial/:specialId",
 
   use(specialsControlleradmin.deleteSpecial)
+);
+router.delete(
+  "/deleteAllSpecials",
+  use(specialsControlleradmin.deleteAllSpecials)
 );
 
 module.exports = router;

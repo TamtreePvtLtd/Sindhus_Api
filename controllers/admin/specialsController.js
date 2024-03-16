@@ -30,13 +30,50 @@ exports.createSpecials = async (req, res, next) => {
       })
     );
 
-    // Save the array of S3 image URLs to the database
-    const newSpecials = await specialsModel.create({ images: s3ImageUrls });
+    const { name } = req.body;
+
+    const newSpecials = await specialsModel.create({
+      name: name,
+      images: s3ImageUrls,
+      created_at: new Date(),
+    });
+
+    // Extract the date portion from the created_at timestamp
+    const dateOnly = newSpecials.created_at.toLocaleDateString();
 
     res.json({
-      data: newSpecials,
+      data: { created_at: dateOnly }, // Return only the date portion
       success: true,
       statusCode: 200,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+exports.deleteAllSpecials = async (req, res, next) => {
+  try {
+    const allSpecials = await specialsModel.find();
+
+    for (const special of allSpecials) {
+      const { images } = special;
+
+      if (images && images.length > 0) {
+        for (const url of images) {
+          if (url) {
+            await deleteImageFromS3(url);
+          }
+        }
+      }
+
+      await special.remove();
+    }
+
+    res.json({
+      success: true,
+      message: "All specials deleted successfully",
+      data: null,
     });
   } catch (error) {
     next(error);
