@@ -10,7 +10,6 @@ const nodemailer = require("nodemailer");
  * @param {Request} req - The Express request object
  * @param {Response} res - The Express response object
  */
-
 exports.createCateringUser = async (req, res, next) => {
   try {
     const { userData, combinedProducts } = req.body;
@@ -19,7 +18,7 @@ exports.createCateringUser = async (req, res, next) => {
       name: userData.name,
       phoneNumber: userData.mobileNumber,
       email: userData.email,
-      eventName:userData.eventName,
+      eventName: userData.eventName,
       eventDate: new Date(userData.eventDate),
       eventTime: userData.eventTime,
     };
@@ -30,6 +29,8 @@ exports.createCateringUser = async (req, res, next) => {
     var formattedTime = new Date(userData.eventTime).toLocaleTimeString({
       timeZone: "Asia/Kolkata",
     });
+    const ampm = formattedTime.slice(-2).toUpperCase();
+    formattedTime = formattedTime.slice(0, -2) + ampm;
 
     const productTableRows = [];
 
@@ -50,12 +51,12 @@ exports.createCateringUser = async (req, res, next) => {
     const userDetailEmailContent = `
       <html>
         <body>
-          <p>Full Name: ${userData.name}</p>
-          <p>Phone Number: ${userData.mobileNumber}</p>
-          <p>Email:${userData.email}</p>
-          <p>Event Name:${userData.eventName}</p>
+          <p>Full Name : ${userData.name}</p>
+          <p >Phone Number : ${userData.mobileNumber}</p>
+          <p >Email : ${userData.email}</p>
+          <p>Event Name : ${userData.eventName}</p>
           <p>Event Date : ${formattedDate}</p>
-          <p>Event  Time: ${formattedTime}</p>
+          <p>Event Time : ${formattedTime}</p>
 
           <table style="border-collapse: collapse; width: 50%;" border="1">
             <thead>
@@ -83,6 +84,7 @@ exports.createCateringUser = async (req, res, next) => {
 
     const usersMailOptions = {
       to: process.env.TAMTREE_EMAIL,
+      subject: "Customer Enquiry Request",
       html: userDetailEmailContent,
     };
 
@@ -90,13 +92,13 @@ exports.createCateringUser = async (req, res, next) => {
       <html>
         <body>
           <p>Dear ${userData.name},</p>
-          <p>Phone Number: ${userData.mobileNumber}</p>
-          <p>Email:${userData.email}</p>
-          <p>Event Name:${userData.eventName}</p>
+          <p>Phone Number : ${userData.mobileNumber}</p>
+          <p>Email : ${userData.email}</p>  
+          <p>Event Name : ${userData.eventName}</p>
           <p>Event Date : ${formattedDate}</p>
-          <p>Event  Time: ${formattedTime}</p>
+          <p>Event Time : ${formattedTime}</p>
 
-          <p>Thank you for your catering Request. We have received your details and will get back to you shortly.</p> 
+          <p>Thank you for your catering request. We have received your details and will get back to you shortly.</p> 
           <table style="border-collapse: collapse; width: 50%;" border="1">
             <thead>
               <tr>
@@ -115,6 +117,7 @@ exports.createCateringUser = async (req, res, next) => {
 
     const thankYouMailOptions = {
       to: userData.email,
+      subject: "Enquiry Request Received",
       html: thankYouEmailContent,
     };
 
