@@ -53,7 +53,9 @@ exports.getAllDiningOutProducts = async (req, res, next) => {
               dailyMenuSizeWithPrice: {
                 $ifNull: ["$productDetails.dailyMenuSizeWithPrice", null],
               },
-              price: "$productDetails.price",
+              itemSizeWithPrice: {
+                $ifNull: ["$productDetails.itemSizeWithPrice", null],
+              },
             },
           },
         },
@@ -331,7 +333,6 @@ exports.getDiningOutMenus = async (req, res, next) => {
 //     next(error);
 //   }
 // };
-
 
 exports.searchDiningOutProduct = async (req, res, next) => {
   const { menuId } = req.params;
