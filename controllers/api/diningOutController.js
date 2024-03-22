@@ -367,11 +367,11 @@ exports.searchDiningOutProduct = async (req, res, next) => {
       {
         $unwind: "$product",
       },
-      // {
-      //   $match: {
-      //     "product.title": { $regex: new RegExp(searchTerm, "i") },
-      //   },
-      // },
+      {
+        $match: {
+          "product.title": { $regex: new RegExp(searchTerm, "i") },
+        },
+      },
       {
         $group: {
           _id: "$product._id",
@@ -388,17 +388,18 @@ exports.searchDiningOutProduct = async (req, res, next) => {
       },
     ]);
 
-    const fuseOptions = {
-      includeScore: true,
-      threshold: 0.5,
-      keys: ["title"],
-      minMatchCharLength: 3,
-    };
+    // const fuseOptions = {
+    //   includeScore: true,
+    //   threshold: 0.5,
+    //   keys: ["title"],
+    //   minMatchCharLength: 3,
+    // };
 
-    const fuse = new Fuse(products, fuseOptions);
-    const searchResults = searchTerm ? fuse.search(searchTerm) : products;
-    console.log("fss", searchResults);
-    res.json(searchResults);
+    // const fuse = new Fuse(products, fuseOptions);
+    // const searchResults = searchTerm ? fuse.search(searchTerm) : products;
+    // console.log("fss", searchResults);
+   
+    res.json(products);
   } catch (error) {
     next(error);
   }
