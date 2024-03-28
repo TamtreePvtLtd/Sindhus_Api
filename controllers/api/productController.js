@@ -103,7 +103,6 @@ exports.fetchProductsByCateringMenu = async (req, res, next) => {
       });
     }
 
-    // Apply aggregation pipeline to get the main array
     const aggregatedData = await ProductModel.aggregate(aggregationPipeline);
 
     const totalItems = aggregatedData.length;
@@ -112,7 +111,7 @@ exports.fetchProductsByCateringMenu = async (req, res, next) => {
       items: productId && !menuId ? aggregatedData[0].items : aggregatedData,
       pageInfo: {
         page: parseInt(req.query.page) || 0,
-        pageSize: 1, // Assuming you always return one item per page based on your $limit
+        pageSize: 1,
         totalPages: totalMenus,
         totalItems,
       },

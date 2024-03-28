@@ -121,7 +121,6 @@ exports.createCateringUser = async (req, res, next) => {
       html: thankYouEmailContent,
     };
 
-    // Sending email to TAMTREE_EMAIL
     transporter.sendMail(usersMailOptions, (error, info) => {
       if (error) {
         console.error("TAMTREE_EMAIL mail error:", error);
@@ -130,7 +129,6 @@ exports.createCateringUser = async (req, res, next) => {
       }
     });
 
-    // Sending thank you email to userData.email
     transporter.sendMail(thankYouMailOptions, (error, info) => {
       if (error) {
         console.error("Thank you mail error:", error);

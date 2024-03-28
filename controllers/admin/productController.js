@@ -37,16 +37,12 @@ exports.createProduct = async (req, res, next) => {
     );
 
     const dailyMenuSizeWithPrice = JSON.parse(formData.dailyMenuSizeWithPrice);
-
-    // Upload poster image to S3 and get the S3 file name
     const posterS3FileName = await uploadToS3(
       posterImage.buffer,
       posterImage.originalname,
       posterImage.mimetype
     );
     const posterImageUrl = `${process.env.BUCKET_URL}${posterS3FileName}`;
-
-    // Upload each remaining image to S3 and get the S3 file name
     const s3ImageUrls = await Promise.all(
       images.map(async (image) => {
         const s3FileName = await uploadToS3(
@@ -281,8 +277,6 @@ exports.getProductsByMenuId = async (req, res, next) => {
   try {
     const { menuId, subMenuId } = req.query;
     const menuItems = await ProductModel.find();
-
-    // Filter the products based on the category
     const filteredProducts = menuItems.filter((product) => {
       if (subMenuId) {
         return (

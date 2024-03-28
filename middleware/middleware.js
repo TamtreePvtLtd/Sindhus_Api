@@ -11,8 +11,6 @@ const useAuth = async (req, res, next) => {
       error.statusCode = 401;
       throw error;
     }
-
-    // Check if the access token is valid
     const payload = await validateAccessToken(sindhus_access_token);
     if (payload) {
       return next();
@@ -33,8 +31,6 @@ async function validateAccessToken(token) {
   try {
     const decoded = jwt.verify(token, SECRET_KEY);
     const { userId } = decoded;
-
-    // Check if the userId exists in the UserModel database
     const user = await UserModel.findById(userId);
     if (!user) {
       const error = new Error("user not found");

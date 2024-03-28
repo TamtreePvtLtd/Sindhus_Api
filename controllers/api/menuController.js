@@ -111,7 +111,6 @@ exports.getAllMenusInCatering = async (req, res, next) => {
       menuType: menuItem.menuType,
     }));
 
-    // Send the filtered menu data in the response
     res.json(menuData);
   } catch (error) {
     next(error);

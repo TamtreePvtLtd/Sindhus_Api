@@ -6,7 +6,6 @@ const specialsModel = require("../../database/models/specials");
  */
 
 const { uploadToS3, deleteFromS3 } = require("../../config/s3Config");
-// const uploadToS3 = require("./uploadToS3"); // Assuming you have a function to upload files to S3
 const multer = require("multer");
 const upload = multer();
 const path = require("path");
@@ -38,11 +37,10 @@ exports.createSpecials = async (req, res, next) => {
       created_at: new Date(),
     });
 
-    // Extract the date portion from the created_at timestamp
     const dateOnly = newSpecials.created_at.toLocaleDateString();
 
     res.json({
-      data: { created_at: dateOnly }, // Return only the date portion
+      data: { created_at: dateOnly },
       success: true,
       statusCode: 200,
     });
@@ -50,7 +48,6 @@ exports.createSpecials = async (req, res, next) => {
     next(error);
   }
 };
-
 
 exports.deleteAllSpecials = async (req, res, next) => {
   try {
