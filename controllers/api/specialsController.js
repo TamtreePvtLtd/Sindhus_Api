@@ -7,7 +7,6 @@ const specialsModel = require("../../database/models/specials");
 
 exports.getAllSpecials = async (req, res, next) => {
   try {
-    // Retrieve all specials from the database
     const allSpecials = await specialsModel.find();
 
     res.json({
@@ -15,7 +14,6 @@ exports.getAllSpecials = async (req, res, next) => {
       success: true,
       statusCode: 200,
     });
-    // console.log("allSpecials", allSpecials);
   } catch (error) {
     next(error);
   }
