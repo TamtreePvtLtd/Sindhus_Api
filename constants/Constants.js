@@ -2,6 +2,11 @@ const SNACKS_MENU_TYPE = 1;
 const OTHER_MENU_TYPE = 2;
 const DRINKS_MENU_TYPE = 3;
 
+const HOME_BANNER = 1;
+const MENUCARD_BANNER = 2;
+const DININGOUT_BANNER = 3;
+const SNACKS_BANNER = 4;
+
 const PRODUCT_IMAGES_FIELDNAME = "images";
 const PRODUCT_POSTER_IMAGE = "posterImage";
 
@@ -11,6 +16,10 @@ const ExpirationInMilliSeconds = 172800000; //2 days
 
 
 module.exports = {
+  HOME_BANNER,
+  MENUCARD_BANNER,
+  DININGOUT_BANNER,
+  SNACKS_BANNER,
   SNACKS_MENU_TYPE,
   OTHER_MENU_TYPE,
   DRINKS_MENU_TYPE,
