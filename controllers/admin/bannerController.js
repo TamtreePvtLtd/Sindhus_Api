@@ -8,10 +8,12 @@ exports.createBanner = async (req, res, next) => {
   try {
     const formData = req.body;
 
-    const { title, image } = formData;
+    const {title,description,pagetitle, image } = formData;
 
     const newBanner = await bannerModel.create({
       title,
+      description,
+      pagetitle,
       image,
     });
 

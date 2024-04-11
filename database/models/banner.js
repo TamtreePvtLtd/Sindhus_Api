@@ -2,12 +2,17 @@ const mongoose = require("mongoose");
 
 const bannerSchema = new mongoose.Schema(
   {
-    title: Number,
-    image: 
-      {
-        type: String,
-      },
-    
+    title: {
+      type: String,
+    },
+    description: {
+      type:String,
+    },
+    pagetitle: Number,
+    image: {
+      type: String,
+    },
+
     created_at: {
       type: Date,
       default: Date.now,
