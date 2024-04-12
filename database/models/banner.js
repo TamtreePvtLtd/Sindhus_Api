@@ -6,16 +6,11 @@ const bannerSchema = new mongoose.Schema(
       type: String,
     },
     description: {
-      type:String,
+      type: String,
     },
     pagetitle: Number,
     image: {
       type: String,
-    },
-
-    created_at: {
-      type: Date,
-      default: Date.now,
     },
   },
   { timestamps: true }

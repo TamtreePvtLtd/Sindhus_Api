@@ -24,42 +24,59 @@ exports.getAllBanners = async (req, res, next) => {
       success: true,
       message: "Banners retrieved successfully",
     });
-    console.log("banners", banners);
   } catch (error) {
     next(error);
   }
 };
 
 exports.getPageTitle = async (req, res, next) => {
-  try {
-    const bannerType = parseInt(req.params.bannerType);
-    console.log("Requested Banner Type:", bannerType);
+  // try {
+  //   const bannerType = parseInt(req.params.bannerType);
+  //   console.log("Requested Banner Type:", bannerType);
 
-    // Check if the banner type exists in the BANNER object
-    if (!BANNER.hasOwnProperty(bannerType)) {
-      console.log("Banner not found in BANNER object");
-      return res.status(404).json({
-        success: false,
-        message: "Banner not found",
-      });
+  //   // Check if the banner type exists in the BANNER object
+  //   if (!BANNER.hasOwnProperty(bannerType)) {
+  //     console.log("Banner not found in BANNER object");
+  //     return res.status(404).json({
+  //       success: false,
+  //       message: "Banner not found",
+  //     });
+  //   }
+
+  //   const pageTitle = BANNER[bannerType].title;
+  //   const image = BANNER[bannerType].image;
+  //   const description = BANNER[bannerType].description;
+
+  //   console.log("Page Title:", pageTitle);
+
+  //   res.status(200).json({
+  //     pageTitle,
+  //     description,
+  //     image,
+  //     success: true,
+  //     message: "Page details retrieved successfully",
+  //   });
+  // } catch (error) {
+  //   next(error);
+  // }
+
+  try {
+    const pagetitle = req.params.pagetitle;
+    console.log("pagetitle", pagetitle);
+   
+    const banner = await bannerModel.findOne({ pagetitle });
+    console.log("banner", banner);
+   
+    if (!banner) {
+      return null;
     }
 
-    const pageTitle = BANNER[bannerType].title;
-    const image = BANNER[bannerType].image;
-    const description = BANNER[bannerType].description;
+   
+    const { title, description, image } = banner;
 
-    console.log("Page Title:", pageTitle);
-
-    res.status(200).json({
-      pageTitle,
-      description,
-      image,
-      success: true,
-      message: "Page details retrieved successfully",
-    });
+    return { title, description, image };
   } catch (error) {
-    next(error);
+    console.error("Error:", error);
+    throw error;
   }
 };
-
-
