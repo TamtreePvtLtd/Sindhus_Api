@@ -62,19 +62,13 @@ exports.getPageTitle = async (req, res, next) => {
 
   try {
     const pagetitle = req.params.pagetitle;
-    console.log("pagetitle", pagetitle);
-   
+
     const banner = await bannerModel.findOne({ pagetitle });
-    console.log("banner", banner);
-   
+
     if (!banner) {
       return null;
     }
-
-   
-    const { title, description, image } = banner;
-
-    return { title, description, image };
+    res.status(200).json(banner);
   } catch (error) {
     console.error("Error:", error);
     throw error;
