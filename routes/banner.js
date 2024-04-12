@@ -18,6 +18,7 @@ router.post(
   use(bannerControlleradmin.createBanner)
 );
 router.get("/getAllBanners", use(bannerControllerapi.getAllBanners));
+router. get("/getPageTitle/:bannerType",use(bannerControllerapi.getPageTitle))
 
 
 module.exports = router;
