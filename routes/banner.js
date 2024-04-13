@@ -18,7 +18,7 @@ router.post(
   use(bannerControlleradmin.createBanner)
 );
 router.post(
-  "/updateBanner/:id",
+  "/updateBanner/:id", [upload.any()],
    use(bannerControlleradmin.updateBanner)
 );
 router.delete(
