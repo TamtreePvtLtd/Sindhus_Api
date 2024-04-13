@@ -17,6 +17,10 @@ router.post(
   [upload.any()],
   use(bannerControlleradmin.createBanner)
 );
+router.post(
+  "/updateBanner/:id",
+   use(bannerControlleradmin.updateBanner)
+);
 router.get("/getAllBanners", use(bannerControllerapi.getAllBanners));
 router.get("/getPageTitle/:pagetitle", use(bannerControllerapi.getPageTitle));
 
