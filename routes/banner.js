@@ -21,6 +21,11 @@ router.post(
   "/updateBanner/:id",
    use(bannerControlleradmin.updateBanner)
 );
+router.delete(
+  "/deleteBanner/:id",
+  
+  use(bannerControlleradmin.deleteBanner)
+);
 router.get("/getAllBanners", use(bannerControllerapi.getAllBanners));
 router.get("/getPageTitle/:pagetitle", use(bannerControllerapi.getPageTitle));
 

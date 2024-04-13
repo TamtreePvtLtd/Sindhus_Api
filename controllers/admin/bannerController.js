@@ -30,12 +30,12 @@ exports.createBanner = async (req, res, next) => {
 
 exports.updateBanner = async (req, res, next) => {
   try {
-    const { id } = req.params; // Assuming the ID is passed in the URL params
+    const { id } = req.params; 
     const formData = req.body;
 
     const { title, description, pagetitle, image } = formData;
 
-    // Find the banner by ID and update its fields
+    
     const updatedBanner = await bannerModel.findByIdAndUpdate(
       id,
       {
@@ -45,11 +45,10 @@ exports.updateBanner = async (req, res, next) => {
         image,
       },
       { new: true }
-    ); // { new: true } ensures that the updated document is returned
+    ); 
 
     if (!updatedBanner) {
-      // If no banner was found with the given ID, return an error
-      return res.status(404).json({
+        return res.status(404).json({
         success: false,
         message: "Banner not found",
       });
@@ -64,3 +63,29 @@ exports.updateBanner = async (req, res, next) => {
     next(error);
   }
 };
+exports.deleteBanner = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const deletedBanner = await bannerModel.deleteOne(
+      { _id: id } // Construct filter object with id
+    );
+
+    if (deletedBanner.deletedCount === 0) {
+      // Check if no banner was deleted
+      return res.status(404).json({
+        success: false,
+        message: "Banner not found",
+      });
+    }
+
+    res.status(200).json({
+      data: deletedBanner,
+      success: true,
+      message: "Banner deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
