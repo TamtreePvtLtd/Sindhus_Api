@@ -7,14 +7,23 @@ const bannerModel = require("../../database/models/banner");
 exports.createBanner = async (req, res, next) => {
   try {
     const formData = req.body;
+   
+    const posterImage = req.files.find(
+      (file) => file.fieldname === "image"
+    );
+        const posterS3FileName = await uploadToS3(
+          posterImage.buffer,
+          posterImage.originalname,
+          posterImage.mimetype
+        );
 
-    const { title, description, pagetitle, image } = formData;
+    const posterImageUrl = `${process.env.BUCKET_URL}${posterS3FileName}`;
 
     const newBanner = await bannerModel.create({
-      title,
-      description,
-      pagetitle,
-      image,
+      title: formData.title,
+      description: formData.description,
+      pagetitle: formData.pagetitle,
+      image: posterImageUrl,
     });
 
     res.status(200).json({
