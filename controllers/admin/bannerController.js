@@ -39,20 +39,36 @@ exports.createBanner = async (req, res, next) => {
 
 exports.updateBanner = async (req, res, next) => {
   try {
-    const { id } = req.params; 
+    const id = req.params.id; 
     const formData = req.body;
 
-    const { title, description, pagetitle, image } = formData;
+        const posterImage = req.files.find(
+          (file) => file.fieldname === "image"
+        );
+    var banner = await bannerModel.findById(id);
+
+    let bannerImageUrl = banner.image;
+        if (posterImage) {
+          const posterS3FileName = await uploadToS3(
+            posterImage.buffer,
+            posterImage.originalname,
+            posterImage.mimetype
+          );
+          bannerImageUrl = `${process.env.BUCKET_URL}${posterS3FileName}`;
+        }
+
+    var updatedFields = {
+      _id: formData.id,
+      title: formData.title,
+      description: formData.description,
+      pagetitle: formData.pagetitle,
+      image: bannerImageUrl,
+    };
 
     
     const updatedBanner = await bannerModel.findByIdAndUpdate(
       id,
-      {
-        title,
-        description,
-        pagetitle,
-        image,
-      },
+      { $set: updatedFields },
       { new: true }
     ); 
 
