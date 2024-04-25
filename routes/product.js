@@ -9,6 +9,7 @@ const { uploadByMulterS3 } = require("../config/s3Config");
 const { useAuth } = require("../middleware/middleware");
 const { paginate } = require("../controllers/pagination");
 const ProductModel = require("../database/models/product");
+const myBagController = require("../controllers/api/myBagController")
 
 const use = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
@@ -84,5 +85,7 @@ router.get(
 );
 
 router.post("/getCateringBag", use(productController.getCateringBag));
+
+router.get('/mybag/:ProductId', use(myBagController.getMyBag));
 
 module.exports = router;
