@@ -86,6 +86,6 @@ router.get(
 
 router.post("/getCateringBag", use(productController.getCateringBag));
 
-router.get('/mybag/:ProductId', use(myBagController.getMyBag));
+router.get('/getMyBag', use(myBagController.getMyBag));
 
 module.exports = router;
