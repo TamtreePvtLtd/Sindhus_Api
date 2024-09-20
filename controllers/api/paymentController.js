@@ -2,7 +2,16 @@ const Payment = require("../../database/models/payment");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 exports.createPaymentIntent = async (req, res) => {
-  const { fullName, address, phoneNumber, email, deliveryOption, amount, deliveryDate } = req.body;
+  const {
+    firstName,
+    lastName,
+    address,
+    phoneNumber,
+    email,
+    deliveryOption,
+    amount,
+    deliveryDate,
+  } = req.body;
 
   try {
     // Create the payment intent with Stripe
@@ -14,14 +23,15 @@ exports.createPaymentIntent = async (req, res) => {
 
     // Save the payment details in your database
     const transaction = new Payment({
-      fullName,
+      firstName,
+      lastName,
       address,
       phoneNumber,
       email,
       deliveryOption,
       amount: amount, // Amount is in cents
       paymentId: paymentIntent.id,
-      status: paymentIntent.status,
+      status: paymentIntent.status, // This might initially be 'requires_confirmation'
       deliveryDate: new Date(deliveryDate),
       createdAt: new Date(),
     });
@@ -38,7 +48,6 @@ exports.createPaymentIntent = async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 };
-
 
 // Save Transaction
 exports.saveTransaction = async (req, res) => {
