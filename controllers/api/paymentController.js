@@ -1,37 +1,40 @@
+const Payment = require("../../database/models/payment");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
-
-const Payment = require("../../database/models/payment"); // Ensure the path is correct
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY); // Use environment variable for the secret key
-
-// Create Payment Intent and Save to Database
 exports.createPaymentIntent = async (req, res) => {
-  const { amount } = req.body;
+  const { fullName, address, phoneNumber, email, deliveryOption, amount, deliveryDate } = req.body;
 
   try {
-    // Create the payment intent using Stripe
+    // Create the payment intent with Stripe
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency: "usd",
       payment_method_types: ["card"],
     });
 
-    // Save the payment details to the database
+    // Save the payment details in your database
     const transaction = new Payment({
+      fullName,
+      address,
+      phoneNumber,
+      email,
+      deliveryOption,
       amount: amount, // Amount is in cents
       paymentId: paymentIntent.id,
       status: paymentIntent.status,
+      deliveryDate: new Date(deliveryDate),
       createdAt: new Date(),
     });
 
-    // Save transaction to the database
     await transaction.save();
 
-    // Respond with the client secret and success message
+    // Respond with the client secret to confirm payment on the frontend
     res.status(200).send({
       clientSecret: paymentIntent.client_secret,
       message: "Payment intent created and saved successfully",
     });
   } catch (error) {
+    console.error("Error creating payment intent:", error.message);
     res.status(500).send({ error: error.message });
   }
 };
