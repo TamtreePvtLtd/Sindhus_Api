@@ -12,6 +12,7 @@ const transactionSchema = new mongoose.Schema({
     required: true,
   },
   amount: { type: Number, required: true },
+  postalCode: { type: Number, required: true },
   paymentId: { type: String, required: true },
   status: { type: String, required: true },
   deliveryDate: { type: Date, required: true }, // Add the date field

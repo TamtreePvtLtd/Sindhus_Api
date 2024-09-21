@@ -11,6 +11,7 @@ exports.createPaymentIntent = async (req, res) => {
     deliveryOption,
     amount,
     deliveryDate,
+    postalCode,
   } = req.body;
 
   try {
@@ -31,6 +32,7 @@ exports.createPaymentIntent = async (req, res) => {
       deliveryOption,
       amount: amount, // Amount is in cents
       paymentId: paymentIntent.id,
+      postalCode:postalCode,
       status: paymentIntent.status, // This might initially be 'requires_confirmation'
       deliveryDate: new Date(deliveryDate),
       createdAt: new Date(),
