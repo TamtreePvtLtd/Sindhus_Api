@@ -42,6 +42,9 @@ exports.createCartItems = async (req, res) => {
      <p><strong>Address:</strong> ${paymentData.address}</p>
       <p><strong>Email:</strong> ${paymentData.email}</p>
       <p><strong>Amount:</strong> $${(paymentData.amount / 100).toFixed(2)}</p>
+       <p><strong>Order Date:</strong> ${new Date(
+         paymentData.createdAt
+       ).toLocaleString()}</p>
     `;
       // Email content for the user
       const userMailOptions = {

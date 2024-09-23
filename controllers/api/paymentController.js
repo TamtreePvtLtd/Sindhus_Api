@@ -9,9 +9,6 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
  * @param {Response} res - The Express response object
  */
 
-
-
-
 exports.createPaymentIntent = async (req, res) => {
   const {
     firstName,
@@ -26,9 +23,8 @@ exports.createPaymentIntent = async (req, res) => {
   } = req.body;
 
   try {
-    
     const paymentIntent = await stripe.paymentIntents.create({
-      amount, 
+      amount,
       currency: "usd",
       payment_method_types: ["card"],
     });
@@ -40,30 +36,27 @@ exports.createPaymentIntent = async (req, res) => {
       phoneNumber,
       email,
       deliveryOption,
-      amount, 
+      amount,
       paymentId: paymentIntent.id,
       postalCode,
       status: paymentIntent.status,
       deliveryDate: new Date(deliveryDate),
       createdAt: new Date(),
     });
-   
 
     await transaction.save();
-
-    const { paymentId, status, ...orderDetails } = transaction.toObject();
 
     res.status(200).send({
       clientSecret: paymentIntent.client_secret,
       message: "Payment intent created and saved successfully",
     });
-    console.log("status", paymentIntent.status);
-
     if (paymentIntent.status === "requires_payment_method") {
     }
   } catch (error) {
-    console.error("Error creating payment intent:", error.message);
-    res.status(500).send({ error: error.message });
+    if (!res.headersSent) {
+      console.error("Error creating payment intent:", error.message);
+      res.status(500).send({ error: error.message });
+    }
   }
 };
 
