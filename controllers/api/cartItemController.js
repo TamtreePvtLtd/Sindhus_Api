@@ -24,8 +24,11 @@ exports.createCartItems = async (req, res) => {
           (item) => `
       <tr>
         <td>${item.title}</td>
+         <td>${item.size}</td>
         <td>${item.quantity}</td>
+        
         <td>${item.price.toFixed(2)}</td>
+        <td>${(item.quantity * item.price).toFixed(2)}</td>
       </tr>
     `
         )
@@ -37,7 +40,7 @@ exports.createCartItems = async (req, res) => {
       <p><strong>Delivery Date:</strong> ${new Date(
         paymentData.deliveryDate
       ).toLocaleDateString()}</p>
-      <p><strong>  DeliveryOption:</strong> ${paymentData.deliveryOption}</p>
+      <p><strong>  Delivery Option:</strong> ${paymentData.deliveryOption}</p>
      <p><strong>Phone Number:</strong> ${paymentData.phoneNumber}</p>
      <p><strong>Address:</strong> ${paymentData.address}</p>
       <p><strong>Email:</strong> ${paymentData.email}</p>
@@ -62,9 +65,11 @@ exports.createCartItems = async (req, res) => {
         <table border="1" cellpadding="5" cellspacing="0">
           <thead>
             <tr>
-              <th>Item Name</th>
+               <th>Item Name</th>
+              <th>Size</th>
               <th>Quantity</th>
-              <th>Price</th>
+              <th>Unit Price</th>
+              <th>Total Price</th>
             </tr>
           </thead>
           <tbody>
@@ -88,9 +93,11 @@ exports.createCartItems = async (req, res) => {
         <table border="1" cellpadding="5" cellspacing="0">
           <thead>
             <tr>
-              <th>Item Name</th>
+             <th>Item Name</th>
+              <th>Size</th>
               <th>Quantity</th>
-              <th>Price</th>
+              <th>Unit Price</th>
+              <th>Total Price</th>
             </tr>
           </thead>
           <tbody>
