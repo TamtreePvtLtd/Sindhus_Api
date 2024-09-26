@@ -32,7 +32,7 @@
 //         <td>${item.title}</td>
 //          <td>${item.size}</td>
 //         <td>${item.quantity}</td>
-        
+
 //         <td>${item.price.toFixed(2)}</td>
 //         <td>${(item.quantity * item.price).toFixed(2)}</td>
 //       </tr>
@@ -178,9 +178,8 @@ exports.createCartItems = async (req, res) => {
 
     await CartItem.insertMany(cartItems);
 
-      const formattedDeliveryDate = formatDate(paymentData.deliveryDate);
-      const formattedCreatedAt = formatDate(paymentData.createdAt);
-
+    const formattedDeliveryDate = formatDate(paymentData.deliveryDate);
+    const formattedCreatedAt = formatDate(paymentData.createdAt);
 
     const cartItemsTable = cartItems
       .map(

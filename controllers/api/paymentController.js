@@ -8,6 +8,13 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
  * @param {Request} req - The Express request object
  * @param {Response} res - The Express response object
  */
+let orderCounter = 1000; // Initialize the counter
+
+const generateOrderNumber = () => {
+ 
+  const orderNumber = orderCounter++; // Increment the counter for each new order
+  return `#-${orderNumber}`;
+};
 
 exports.createPaymentIntent = async (req, res) => {
   const {
@@ -23,6 +30,7 @@ exports.createPaymentIntent = async (req, res) => {
   } = req.body;
 
   try {
+     const orderNumber = generateOrderNumber();
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency: "usd",
@@ -42,6 +50,7 @@ exports.createPaymentIntent = async (req, res) => {
       status: paymentIntent.status,
       deliveryDate: new Date(deliveryDate),
       createdAt: new Date(),
+      orderNumber,
     });
 
     await transaction.save();
@@ -49,6 +58,7 @@ exports.createPaymentIntent = async (req, res) => {
     res.status(200).send({
       clientSecret: paymentIntent.client_secret,
       message: "Payment intent created and saved successfully",
+      orderNumber,
     });
     if (paymentIntent.status === "requires_payment_method") {
     }
