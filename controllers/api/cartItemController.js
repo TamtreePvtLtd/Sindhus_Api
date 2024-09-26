@@ -185,7 +185,7 @@ exports.createCartItems = async (req, res) => {
       .map(
         (item) => `
       <tr>
-      <img src="${item.imageURL}" alt="${
+      <img src="${item.imageUrl}" alt="${
           item.title
         }" style="width: 100px; height: 100px; object-fit: cover;" />
         <td>${item.title}</td>
