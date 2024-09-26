@@ -13,7 +13,7 @@ let orderCounter = 1000; // Initialize the counter
 const generateOrderNumber = () => {
  
   const orderNumber = orderCounter++; // Increment the counter for each new order
-  return `#-${orderNumber}`;
+  return `#${orderNumber}`;
 };
 
 exports.createPaymentIntent = async (req, res) => {
