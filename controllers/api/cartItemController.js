@@ -165,8 +165,8 @@ const formatDate = (date) => {
 
 exports.createCartItems = async (req, res) => {
   try {
-    const { cartItems, paymentData } = req.body;
-
+    const { cartItems, paymentData, orderNumber } = req.body;
+//  const orderNumber = req.orderNumber;
     if (!cartItems || cartItems.length === 0) {
       return res.status(400).json({ error: "Cart items are required" });
     }
@@ -200,6 +200,7 @@ exports.createCartItems = async (req, res) => {
       .join("");
 
     const paymentDataHtml = `
+      <p><strong>Order Number:</strong> ${orderNumber}</p>
       <p><strong>First Name:</strong> ${paymentData.firstName}</p>
       <p><strong>Last Name:</strong> ${paymentData.lastName}</p>
       <p><strong>Delivery Date:</strong> ${formattedDeliveryDate}</p>

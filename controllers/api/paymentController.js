@@ -54,7 +54,6 @@ exports.createPaymentIntent = async (req, res) => {
     });
 
     await transaction.save();
-
     res.status(200).send({
       clientSecret: paymentIntent.client_secret,
       message: "Payment intent created and saved successfully",
