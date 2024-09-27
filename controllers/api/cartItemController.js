@@ -191,7 +191,6 @@ exports.createCartItems = async (req, res) => {
         <td>${item.title}</td>
          <td>${item.size}</td>
         <td>${item.quantity}</td>
-        
         <td>${item.price.toFixed(2)}</td>
         <td>${(item.quantity * item.price).toFixed(2)}</td>
       </tr>
