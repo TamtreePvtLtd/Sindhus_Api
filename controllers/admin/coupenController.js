@@ -83,7 +83,7 @@ exports.deleteCoupen = async (req, res, next) => {
   }
 };
 
-exports.getCoupen = async (req, res, next) => {
+exports.getAllCoupens = async (req, res, next) => {
   try {
     const coupenData = await CoupenModel.find();
 

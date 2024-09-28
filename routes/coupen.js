@@ -12,6 +12,6 @@ router.put("/updateCoupen/:id", use(coupenController.updateCoupen));
 
 router.delete("/deleteCoupen/:id", use(coupenController.deleteCoupen));
 
-router.get("/getCoupen", use(coupenController.getCoupen));
+router.get("/getAllCoupens", use(coupenController.getAllCoupens));
 
 module.exports = router;
