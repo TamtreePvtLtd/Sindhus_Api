@@ -31,6 +31,7 @@ var enquiryRouter = require("./routes/enquiry");
 var customerRouter = require("./routes/customer");
 var cateringUserRouter=require("./routes/cateringUser")
 var specialsRouter = require("./routes/specials");
+var coupenRouter = require("./routes/coupen");
 app.use((req, res, next) => {
   const allowedOriginsWithCredentials = [
     "http://localhost:5173",
@@ -73,6 +74,7 @@ app.use("/enquiry", enquiryRouter);
 app.use("/customer", customerRouter);
 app.use("/cateringUser", cateringUserRouter);
 app.use("/specials", specialsRouter);
+app.use("/coupen", coupenRouter);
 
 //these middleware should at last but before error handlers
 app.use("*", (req, res, next) => {
