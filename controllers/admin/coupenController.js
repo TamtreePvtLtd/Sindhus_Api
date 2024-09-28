@@ -88,7 +88,7 @@ exports.getAllCoupens = async (req, res, next) => {
     const coupenData = await CoupenModel.find();
 
     res.json({
-      data: coupenData,
+      items: coupenData,
       success: true,
       statusCode: 200,
     });

@@ -22,7 +22,7 @@ const coupenSchema = new mongoose.Schema({
     required: true,
   },
   availability: {
-    type: Boolean,
+    type: String,
     required: true,
   },
 });
