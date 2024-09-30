@@ -5,5 +5,7 @@ const paymentController = require("../controllers/api/paymentController"); // Ad
 // Define routes
 router.post("/createPaymentIntent", paymentController.createPaymentIntent);
 router.post("/saveTransaction", paymentController.saveTransaction);
+router.get("/lasttransaction", paymentController.getLastCreatedPayment);
+router.get("/transaction", paymentController.getAllPayment);
 
 module.exports = router;

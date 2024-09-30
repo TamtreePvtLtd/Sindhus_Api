@@ -10,4 +10,9 @@ const CartItemSchema = new mongoose.Schema({
   imageUrl: { type: String, required: true },
 });
 
-module.exports = mongoose.model("CartItem", CartItemSchema);
+const OrderSchema = new mongoose.Schema({
+  cartItems: { type: [CartItemSchema], required: true },
+  orderNumber: { type: String, required: true },
+});
+
+module.exports = mongoose.model("cartItem", OrderSchema);
