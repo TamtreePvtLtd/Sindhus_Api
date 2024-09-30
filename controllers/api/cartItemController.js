@@ -58,8 +58,8 @@ exports.createCartItems = async (req, res) => {
         <td>${item.title}</td>
          <td>${item.size}</td>
         <td>${item.quantity}</td>
-        <td>${item.price.toFixed(2)}</td>
-        <td>${(item.quantity * item.price).toFixed(2)}</td>
+        <td>$${item.price.toFixed(2)}</td>
+        <td>$${(item.quantity * item.price).toFixed(2)}</td>
       </tr>
     `
       )
@@ -88,11 +88,11 @@ exports.createCartItems = async (req, res) => {
       
       <div style="text-align: center; padding-bottom: 20px;">
         <h2 style="color: #333;">Order Confirmation</h2>
-        <h6 > Order : <strong>${orderNumber}</strong></h6>
+        <h3 > Order : <strong>${orderNumber}</strong></h3>
         <p>Thank you for your purchase, <strong>${paymentData.firstName} ${
         paymentData.lastName
       }</strong>!</p>
-        <p>Your payment of ₹${(paymentData.amount / 100).toFixed(
+        <p>Your payment of $${(paymentData.amount / 100).toFixed(
           2
         )} was successful.</p>
       </div>
@@ -117,10 +117,10 @@ exports.createCartItems = async (req, res) => {
                 <p style="margin: 5px 0; color: #777;">Quantity: ${
                   item.quantity
                 }</p>
-                 <p style="margin: 5px 0; font-size: 14px; color: #777;">Price: ₹${item.price.toFixed(
+                 <p style="margin: 5px 0; font-size: 14px; color: #777;">Price: $${item.price.toFixed(
                    2
                  )}</p>
-                <p style="margin: 5px 0; font-size: 14px; color: #777;">Total: ₹${(
+                <p style="margin: 5px 0; font-size: 14px; color: #777;">Total: $${(
                   item.quantity * item.price
                 ).toFixed(2)}</p>
               </div>
@@ -135,7 +135,7 @@ exports.createCartItems = async (req, res) => {
         <div style="display: flex; justify-content: space-between;flex font-size: 16px; font-weight: bold; margin-top: 10px;">
         <p>Total Quantity: <strong>${totalQuantity}</strong></p>
           <p>Total:</p>
-          <p>₹${(paymentData.amount / 100).toFixed(2)}</p>
+          <p>$${(paymentData.amount / 100).toFixed(2)}</p>
         </div>
       </div>
 
