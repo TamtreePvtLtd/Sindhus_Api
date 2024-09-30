@@ -24,10 +24,11 @@ exports.createCartItems = async (req, res) => {
     if (!cartItems || cartItems.length === 0) {
       return res.status(400).json({ error: "Cart items are required" });
     }
-
+    const deliveredStatus = "false";
     const newOrder = {
       cartItems,
       orderNumber,
+      deliveredStatus,
     };
     console.log("newOrder", newOrder);
 
@@ -220,6 +221,53 @@ exports.createCartItems = async (req, res) => {
 
     res.status(201).json({ message: "Cart items created and emails sent" });
   } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.updateCartItems = async (req, res) => {
+  try {
+    console.log("req.params", req.params.orderNumber);
+
+    const orderId = req.params.orderNumber; // Extract order ID from the URL
+
+    const { cartItems, orderNumber } = req.body;
+
+    console.log("orderNumber", orderId);
+
+    const deliveredStatus = "true";
+
+    if (!orderId) {
+      return res.status(400).json({ error: "Order ID is required" });
+    }
+
+    if (!cartItems || cartItems.length === 0) {
+      return res.status(400).json({ error: "Cart items are required" });
+    }
+
+    const updatedOrder = {
+      cartItems,
+      orderNumber,
+      deliveredStatus,
+    };
+
+    // Find the order by ID and update it
+    const order = await OrderItem.findOneAndUpdate(
+      { orderNumber: orderId }, // Match the orderNumber
+      updatedOrder, // Update the order with new cart items and status
+      { new: true } // Return the updated document
+    );
+
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    console.log("updatedOrder", order);
+
+    // Send the updated order as a response
+    res.status(200).json(order);
+  } catch (error) {
+    console.error("Error updating order:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
