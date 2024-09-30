@@ -85,14 +85,12 @@ exports.deleteCoupen = async (req, res, next) => {
 
 exports.getAllCoupens = async (req, res, next) => {
   try {
-    const coupenData = await CoupenModel.find();
+    req.paginationResult.items = await req.paginationResult.items;
 
-    res.json({
-      items: coupenData,
-      success: true,
-      statusCode: 200,
-    });
+    res.json(req.paginationResult);
   } catch (error) {
     next(error);
   }
 };
+
+
