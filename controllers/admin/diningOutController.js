@@ -154,45 +154,74 @@ exports.getAllDiningOutProductswithMenuData = async (req, res, next) => {
  * @param {Response} res - The Express response object
  */
 
+// exports.deleteDiningOutProduct = async (req, res, next) => {
+//   try {
+//     const { diningOutId } = req.params;
+//     if (!diningOutId) {
+//       const error = new Error("diningOut ID is required");
+//       error.statusCode = 411;
+//       throw error;
+//     }
+
+//     const product = await DiningOutModel.findById(diningOutId);
+
+//     if (!product) {
+//       const error = new Error("Product not found");
+//       error.statusCode = 404;
+//       throw error;
+//     }
+
+//     const deleteResult = await DiningOutModel.deleteOne({ _id: diningOutId });
+
+//     if (deleteResult.acknowledged == false && deleteResult.deletedCount <= 0) {
+//       const error = new Error("Error while delete product");
+//       error.statusCode = 521;
+//       throw error;
+//     }
+
+//     const success = deleteResult.acknowledged;
+//     const message = success
+//       ? "Product deleted successfully"
+//       : "Failed to delete product";
+
+//     res.json({
+//       success: success,
+//       message: message,
+//       data: null,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+
 exports.deleteDiningOutProduct = async (req, res, next) => {
   try {
-    const { diningOutId } = req.params;
-    if (!diningOutId) {
-      const error = new Error("diningOut ID is required");
-      error.statusCode = 411;
-      throw error;
-    }
-
-    const product = await DiningOutModel.findById(diningOutId);
-
-    if (!product) {
-      const error = new Error("Product not found");
-      error.statusCode = 404;
-      throw error;
-    }
-
-    const deleteResult = await DiningOutModel.deleteOne({ _id: diningOutId });
-
-    if (deleteResult.acknowledged == false && deleteResult.deletedCount <= 0) {
-      const error = new Error("Error while delete product");
-      error.statusCode = 521;
-      throw error;
-    }
-
-    const success = deleteResult.acknowledged;
-    const message = success
-      ? "Product deleted successfully"
-      : "Failed to delete product";
-
-    res.json({
-      success: success,
-      message: message,
-      data: null,
+    const { mainMenuId } = req.params;
+    const diningOut = await DiningOutModel.findOne({
+      "menu.mainMenuId": mainMenuId,
     });
+    if (!diningOut) {
+      return res.status(404).json({ message: "Dining out entry not found" });
+    }
+    for (const menu of diningOut.menu) {
+      if (menu.mainMenuId.equals(mainMenuId)) {
+        menu.productIds = [];
+        await diningOut.save();
+        return res
+          .status(200)
+          .json({ message: "Products removed successfully" });
+      }
+    }
+
+    res.status(404).json({ message: "Menu not found" });
   } catch (error) {
-    next(error);
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
 
 /**
  * @param {Request} req - The Express request object
