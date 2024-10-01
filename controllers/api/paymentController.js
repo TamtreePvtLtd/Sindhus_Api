@@ -93,6 +93,29 @@ exports.createPaymentIntent = async (req, res) => {
   }
 };
 
+exports.deleteDeliveredPayment = async (req, res) => {
+  try {
+    const orderId = req.params.orderNumber; // Extract order ID from the URL
+    console.log("delete orderId", orderId);
+
+    if (!orderId) {
+      return res.status(400).json({ error: "Order ID is required" });
+    }
+
+    // Find the order by ID and delete it
+    const order = await Payment.findOneAndDelete({ orderNumber: orderId });
+
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    res.status(200).json({ message: "Order deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting order:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 // Save Transaction
 exports.saveTransaction = async (req, res) => {
   const { amount, paymentId, status } = req.body;

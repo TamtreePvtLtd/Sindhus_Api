@@ -225,36 +225,23 @@ exports.createCartItems = async (req, res) => {
   }
 };
 
-exports.updateCartItems = async (req, res) => {
+exports.updateDeliveryStatus = async (req, res) => {
   try {
-    console.log("req.params", req.params.orderNumber);
-
     const orderId = req.params.orderNumber; // Extract order ID from the URL
-
-    const { cartItems, orderNumber } = req.body;
-
-    console.log("orderNumber", orderId);
-
     const deliveredStatus = "true";
 
     if (!orderId) {
       return res.status(400).json({ error: "Order ID is required" });
     }
 
-    if (!cartItems || cartItems.length === 0) {
-      return res.status(400).json({ error: "Cart items are required" });
+    if (deliveredStatus === undefined) {
+      return res.status(400).json({ error: "Delivered status is required" });
     }
 
-    const updatedOrder = {
-      cartItems,
-      orderNumber,
-      deliveredStatus,
-    };
-
-    // Find the order by ID and update it
+    // Find the order by ID and update the delivered status
     const order = await OrderItem.findOneAndUpdate(
       { orderNumber: orderId }, // Match the orderNumber
-      updatedOrder, // Update the order with new cart items and status
+      { deliveredStatus }, // Update the delivered status
       { new: true } // Return the updated document
     );
 
@@ -262,9 +249,6 @@ exports.updateCartItems = async (req, res) => {
       return res.status(404).json({ error: "Order not found" });
     }
 
-    console.log("updatedOrder", order);
-
-    // Send the updated order as a response
     res.status(200).json(order);
   } catch (error) {
     console.error("Error updating order:", error);
@@ -278,5 +262,28 @@ exports.getAllCartItem = async (req, res) => {
     res.status(200).json(cartItems);
   } catch (error) {
     res.status(500).json({ message: "Error fetching cart items", error });
+  }
+};
+
+exports.deleteOrder = async (req, res) => {
+  try {
+    const orderId = req.params.orderNumber; // Extract order ID from the URL
+    console.log("delete orderId", orderId);
+
+    if (!orderId) {
+      return res.status(400).json({ error: "Order ID is required" });
+    }
+
+    // Find the order by ID and delete it
+    const order = await OrderItem.findOneAndDelete({ orderNumber: orderId });
+
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    res.status(200).json({ message: "Order deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting order:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
