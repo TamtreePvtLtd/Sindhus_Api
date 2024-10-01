@@ -89,7 +89,7 @@ exports.createCartItems = async (req, res) => {
       
       <div style="text-align: center; padding-bottom: 20px;">
         <h2 style="color: #333;">Order Confirmation</h2>
-        <h3 > Order : <strong>${orderNumber}</strong></h3>
+        <h3 > Order# : <strong>${orderNumber}</strong></h3>
         <p>Thank you for your purchase, <strong>${paymentData.firstName} ${
         paymentData.lastName
       }</strong>!</p>
@@ -135,9 +135,14 @@ exports.createCartItems = async (req, res) => {
       
         <div style="display: flex; justify-content: space-between;flex font-size: 16px; font-weight: bold; margin-top: 10px;">
         <p>Total Quantity: <strong>${totalQuantity}</strong></p>
-          <p>Total:</p>
-          <p>$${(paymentData.amount / 100).toFixed(2)}</p>
+          
+           
         </div>
+        <div style="display: flex; justify-content: space-between;flex font-size: 16px; font-weight: bold; margin-top: 10px;">
+          <p>Total :<strong> $${(paymentData.amount / 100).toFixed(
+            2
+          )}</strong></p>
+          </div>
       </div>
 
       <!-- Customer Information Card -->
@@ -156,7 +161,7 @@ exports.createCartItems = async (req, res) => {
          <div style="margin-top: 20px;">
           <h4 style="margin-bottom: 10px;">Delivery Date</h4>
           <p style="margin: 5px 0; font-size: 14px; color: #777;">${
-            paymentData.deliveryDate
+            formattedDeliveryDate
           }</p>
           <h4 style="margin-bottom: 10px;">Shipping Method</h4>
           <p style="margin: 0; font-size: 14px; color: #777;">${
