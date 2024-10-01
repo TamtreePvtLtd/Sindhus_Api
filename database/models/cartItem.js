@@ -13,6 +13,7 @@ const CartItemSchema = new mongoose.Schema({
 const OrderSchema = new mongoose.Schema({
   cartItems: { type: [CartItemSchema], required: true },
   orderNumber: { type: String, required: true },
+  deliveredStatus: { type: String, required: true },
 });
 
 module.exports = mongoose.model("cartItem", OrderSchema);

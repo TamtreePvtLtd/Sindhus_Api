@@ -24,10 +24,11 @@ exports.createCartItems = async (req, res) => {
     if (!cartItems || cartItems.length === 0) {
       return res.status(400).json({ error: "Cart items are required" });
     }
-
+    const deliveredStatus = "false";
     const newOrder = {
       cartItems,
       orderNumber,
+      deliveredStatus,
     };
     console.log("newOrder", newOrder);
 
@@ -88,7 +89,7 @@ exports.createCartItems = async (req, res) => {
       
       <div style="text-align: center; padding-bottom: 20px;">
         <h2 style="color: #333;">Order Confirmation</h2>
-        <h3 > Order : <strong>${orderNumber}</strong></h3>
+        <h3 > Order# : <strong>${orderNumber}</strong></h3>
         <p>Thank you for your purchase, <strong>${paymentData.firstName} ${
         paymentData.lastName
       }</strong>!</p>
@@ -134,9 +135,14 @@ exports.createCartItems = async (req, res) => {
       
         <div style="display: flex; justify-content: space-between;flex font-size: 16px; font-weight: bold; margin-top: 10px;">
         <p>Total Quantity: <strong>${totalQuantity}</strong></p>
-          <p>Total:</p>
-          <p>$${(paymentData.amount / 100).toFixed(2)}</p>
+          
+           
         </div>
+        <div style="display: flex; justify-content: space-between;flex font-size: 16px; font-weight: bold; margin-top: 10px;">
+          <p>Total :<strong> $${(paymentData.amount / 100).toFixed(
+            2
+          )}</strong></p>
+          </div>
       </div>
 
       <!-- Customer Information Card -->
@@ -155,7 +161,7 @@ exports.createCartItems = async (req, res) => {
          <div style="margin-top: 20px;">
           <h4 style="margin-bottom: 10px;">Delivery Date</h4>
           <p style="margin: 5px 0; font-size: 14px; color: #777;">${
-            paymentData.deliveryDate
+            formattedDeliveryDate
           }</p>
           <h4 style="margin-bottom: 10px;">Shipping Method</h4>
           <p style="margin: 0; font-size: 14px; color: #777;">${
@@ -224,11 +230,65 @@ exports.createCartItems = async (req, res) => {
   }
 };
 
+exports.updateDeliveryStatus = async (req, res) => {
+  try {
+    const orderId = req.params.orderNumber; // Extract order ID from the URL
+    const deliveredStatus = "true";
+
+    if (!orderId) {
+      return res.status(400).json({ error: "Order ID is required" });
+    }
+
+    if (deliveredStatus === undefined) {
+      return res.status(400).json({ error: "Delivered status is required" });
+    }
+
+    // Find the order by ID and update the delivered status
+    const order = await OrderItem.findOneAndUpdate(
+      { orderNumber: orderId }, // Match the orderNumber
+      { deliveredStatus }, // Update the delivered status
+      { new: true } // Return the updated document
+    );
+
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    res.status(200).json(order);
+  } catch (error) {
+    console.error("Error updating order:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 exports.getAllCartItem = async (req, res) => {
   try {
     const cartItems = await OrderItem.find();
     res.status(200).json(cartItems);
   } catch (error) {
     res.status(500).json({ message: "Error fetching cart items", error });
+  }
+};
+
+exports.deleteOrder = async (req, res) => {
+  try {
+    const orderId = req.params.orderNumber; // Extract order ID from the URL
+    console.log("delete orderId", orderId);
+
+    if (!orderId) {
+      return res.status(400).json({ error: "Order ID is required" });
+    }
+
+    // Find the order by ID and delete it
+    const order = await OrderItem.findOneAndDelete({ orderNumber: orderId });
+
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    res.status(200).json({ message: "Order deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting order:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };

@@ -8,7 +8,7 @@ const transactionSchema = new mongoose.Schema({
   email: { type: String, required: true },
   deliveryOption: {
     type: String,
-    enum: ["delivery", "pickup"],
+    enum: ["Delivery", "Pickup"],
     required: true,
   },
   amount: { type: Number, required: true },
