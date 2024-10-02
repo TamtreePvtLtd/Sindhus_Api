@@ -25,17 +25,15 @@ exports.createDistance = async (req, res, next) => {
     next(error);
   }
 };
-// exports.getAllDistances = async (req, res, next) => {
-//   try {
-//     const distances = await DistanceModel.find();
+exports.getAllDistances = async (req, res, next) => {
+  try {
+    const data = await DistanceModel.find();
 
-//     res.json({
-//       distances,
-//     });
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+    res.json(data);
+  } catch (error) {
+    next(error);
+  }
+};
 exports.updateDistance = async (req, res, next) => {
   try {
     const distanceId = req.params.id;
