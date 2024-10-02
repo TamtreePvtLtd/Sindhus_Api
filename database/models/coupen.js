@@ -25,6 +25,14 @@ const coupenSchema = new mongoose.Schema({
     type: Boolean,
     required: true,
   },
+  startDateWithTime: {
+    type: String,
+    required: true,
+  },
+  endDateWithTime: {
+    type: String,
+    required: true,
+  },
 });
 
 const CoupenModel = mongoose.model("coupen", coupenSchema);
