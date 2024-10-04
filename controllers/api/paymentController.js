@@ -16,7 +16,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 // };
 exports.getAllPayment = async (req, res) => {
   try {
-    const paymentItems = await Payment.find();
+    const paymentItems = await Payment.find().sort({ orderNumber: -1 }).exec();
     res.status(200).json(paymentItems);
   } catch (error) {
     res.status(500).json({ message: "Error fetching cart items", error });
@@ -49,6 +49,10 @@ exports.createPaymentIntent = async (req, res) => {
     deliveryDate,
     postalCode,
     orderNumber,
+    couponName,
+    totalWithoutCoupon,
+    totalWithCoupon,
+    addressURL,
   } = req.body;
 
   console.log(req.body);
@@ -75,6 +79,10 @@ exports.createPaymentIntent = async (req, res) => {
       deliveryDate: new Date(deliveryDate),
       createdAt: new Date(),
       orderNumber,
+      couponName,
+      totalWithCoupon,
+      totalWithoutCoupon,
+      addressURL,
     });
 
     await transaction.save();

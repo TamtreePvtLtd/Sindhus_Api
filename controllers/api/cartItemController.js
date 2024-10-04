@@ -261,7 +261,7 @@ exports.updateDeliveryStatus = async (req, res) => {
 
 exports.getAllCartItem = async (req, res) => {
   try {
-    const cartItems = await OrderItem.find();
+    const cartItems = await OrderItem.find().sort({ orderNumber: -1 }).exec();
     res.status(200).json(cartItems);
   } catch (error) {
     res.status(500).json({ message: "Error fetching cart items", error });
