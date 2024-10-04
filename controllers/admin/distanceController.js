@@ -111,7 +111,11 @@ exports.getNearestDistance = async (req, res) => {
     console.log("Query result:", nearestGreaterDistance);
 
     if (nearestGreaterDistance.length === 0) {
-      return res.status(404).json({ message: "No greater distance found" });
+      return res.status(200).json({
+        _id: 0,
+        amount: 0,
+        uptoDistance: 0,
+      });
     }
 
     // Send the nearest greater distance as a response
@@ -121,4 +125,3 @@ exports.getNearestDistance = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
