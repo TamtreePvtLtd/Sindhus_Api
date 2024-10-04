@@ -18,6 +18,7 @@ const transactionSchema = new mongoose.Schema({
   deliveryDate: { type: Date, required: true }, // Add the date field
   createdAt: { type: Date, default: Date.now },
   orderNumber: { type: String, required: true },
+  
 });
 
 module.exports = mongoose.model("Transaction", transactionSchema);

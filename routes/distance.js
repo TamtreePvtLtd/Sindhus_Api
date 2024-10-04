@@ -17,5 +17,9 @@ router.get(
 
   use(distanceController.getAllDistances)
 );
+router.get(
+  "/getNearestDistance/:distance",
+  distanceController.getNearestDistance
+);
 
 module.exports = router;

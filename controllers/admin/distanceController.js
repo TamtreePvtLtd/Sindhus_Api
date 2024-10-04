@@ -91,3 +91,34 @@ exports.deleteDistance = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getNearestDistance = async (req, res) => {
+  try {
+    // Get the distance parameter from the request
+    const distance = parseFloat(req.params.distance);
+    console.log("Requested distance:", distance);
+    const distances = await DistanceModel.find({}).exec();
+    console.log("All distances:", distances);
+
+    // Find the first nearest greater distance
+    const nearestGreaterDistance = await DistanceModel.find({
+      uptoDistance: { $gt: distance }, // Find distances greater than the passed distance
+    })
+      .sort({ uptoDistance: 1 }) // Sort in ascending order to get the nearest greater distance
+      .limit(1) // Limit the result to just the first document
+      .exec();
+
+    console.log("Query result:", nearestGreaterDistance);
+
+    if (nearestGreaterDistance.length === 0) {
+      return res.status(404).json({ message: "No greater distance found" });
+    }
+
+    // Send the nearest greater distance as a response
+    res.json(nearestGreaterDistance[0]); // Return the first document
+  } catch (error) {
+    console.error("Error finding nearest greater distance:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
