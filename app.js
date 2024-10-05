@@ -4,6 +4,7 @@ var cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 var cors = require("cors");
 const session = require("express-session");
+const path = require("path");
 
 const app = express();
 
@@ -71,6 +72,8 @@ mongoose
   .catch((error) => {
     console.error("MongoDB connection error:", error);
   });
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 //Routes
 app.use("/menu", menuRouter);

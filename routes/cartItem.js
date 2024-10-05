@@ -8,6 +8,7 @@ const use = (fn) => (req, res, next) =>
 
 router.post("/cartItem", use(cartItemController.createCartItems));
 router.get("/cartItem", use(cartItemController.getAllCartItem));
+router.get("/resendMail", use(cartItemController.resendMail));
 router.put(
   "/cartItem/:orderNumber",
   use(cartItemController.updateDeliveryStatus)

@@ -124,6 +124,40 @@ exports.deleteDeliveredPayment = async (req, res) => {
   }
 };
 
+exports.updatePaymentIntent = async (req, res) => {
+  try {
+    console.log("req.params", req.params);
+    console.log("req.body", req.body);
+
+    const orderId = req.params.orderNumber; // Extract order ID from the URL
+    const { email, phoneNumber } = req.body;
+    if (!orderId) {
+      return res.status(400).json({ error: "Order ID is required" });
+    }
+
+    if (email === undefined || phoneNumber === undefined) {
+      return res
+        .status(400)
+        .json({ error: "orderId and phoneNumber is required" });
+    }
+
+    // Find the order by ID and update the delivered status
+    const order = await Payment.findOneAndUpdate(
+      { orderNumber: orderId }, // Match the orderNumber
+      { email, phoneNumber }, // Update the delivered status
+      { new: true } // Return the updated document
+    );
+
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    res.status(200).json(order);
+  } catch (error) {
+    console.error("Error updating order:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 // Save Transaction
 exports.saveTransaction = async (req, res) => {
   const { amount, paymentId, status } = req.body;
