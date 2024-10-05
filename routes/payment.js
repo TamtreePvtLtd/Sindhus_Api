@@ -11,5 +11,5 @@ router.delete(
   "/transaction/:orderNumber",
   paymentController.deleteDeliveredPayment
 );
-
+router.put("/transaction/:orderNumber", paymentController.updatePaymentIntent);
 module.exports = router;
