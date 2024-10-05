@@ -3,7 +3,7 @@ require("dotenv").config();
 var cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 var cors = require("cors");
-const session = require('express-session');
+const session = require("express-session");
 
 const app = express();
 
@@ -13,15 +13,17 @@ const connectionString = process.env.CONNECTION_STRING || "";
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(session({
-  secret: 'Password',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    maxAge: 3600000, 
-    httpOnly: true, 
-  },
-}));
+app.use(
+  session({
+    secret: "Password",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 3600000,
+      httpOnly: true,
+    },
+  })
+);
 
 //Routes imports goes here
 var menuRouter = require("./routes/menu");
@@ -29,8 +31,13 @@ var productRouter = require("./routes/product");
 var diningOutRouter = require("./routes/diningOut");
 var enquiryRouter = require("./routes/enquiry");
 var customerRouter = require("./routes/customer");
-var cateringUserRouter=require("./routes/cateringUser")
+var cateringUserRouter = require("./routes/cateringUser");
 var specialsRouter = require("./routes/specials");
+var paymentRouter = require("./routes/payment");
+var cartItem = require("./routes/cartItem");
+var coupenRouter = require("./routes/coupen");
+var distanceRouter = require("./routes/distance");
+
 app.use((req, res, next) => {
   const allowedOriginsWithCredentials = [
     "http://localhost:5173",
@@ -73,6 +80,10 @@ app.use("/enquiry", enquiryRouter);
 app.use("/customer", customerRouter);
 app.use("/cateringUser", cateringUserRouter);
 app.use("/specials", specialsRouter);
+app.use("/payment", paymentRouter);
+app.use("/cart", cartItem);
+app.use("/coupen", coupenRouter);
+app.use("/distance", distanceRouter);
 
 //these middleware should at last but before error handlers
 app.use("*", (req, res, next) => {

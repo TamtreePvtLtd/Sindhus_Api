@@ -44,8 +44,8 @@ router.get(
 );
 
 router.delete(
-  "/deleteDiningOutProduct/:diningOutId",
-  useAuth,
+  "/deleteDiningOutProduct/:mainMenuId",
+  // useAuth,
   use(diningOutControlleradmin.deleteDiningOutProduct)
 );
 
