@@ -6,8 +6,8 @@ const logoPath = path.join(__dirname, "../../uploads/logo.png"); // Update with 
 const transporter = nodemailer.createTransport({
   service: "Gmail",
   auth: {
-    user: "deepa.tamtree@gmail.com",
-    pass: "llbf upiq gaxj hqxy",
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
   },
 });
 
