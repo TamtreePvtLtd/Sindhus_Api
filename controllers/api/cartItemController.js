@@ -62,6 +62,7 @@ exports.createCartItems = async (req, res) => {
         <td>${item.quantity}</td>
         <td>$${item.price.toFixed(2)}</td>
         <td>$${(item.quantity * item.price).toFixed(2)}</td>
+       
       </tr>
     `
       )
@@ -79,6 +80,8 @@ exports.createCartItems = async (req, res) => {
       <p><strong>Total Quantity:</strong> ${totalQuantity}</p>
       <p><strong>Amount:</strong> $${(paymentData.amount / 100).toFixed(2)}</p>
        <p><strong>Order Date:</strong> ${formattedCreatedAt}</p>
+       <p><strong>Order Location URL:</strong> ${paymentData.addressURL}</p>
+       <p><strong>Order Notes:</strong> ${paymentData.notes}</p>
     `;
     // Email content for the user
     const userMailOptions = {
@@ -210,6 +213,11 @@ exports.createCartItems = async (req, res) => {
           </thead>
           <tbody>
             ${cartItemsTable}
+              <tr>
+              <td colspan="5" style="text-align: right; font-weight: bold;">Total Amount with Tax:</td>
+        <td style="font-weight: bold;">$${(paymentData.amount / 100).toFixed(
+          2
+        )}</td>
           </tbody>
         </table>
       `,

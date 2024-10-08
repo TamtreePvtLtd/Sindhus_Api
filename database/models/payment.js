@@ -22,6 +22,7 @@ const transactionSchema = new mongoose.Schema({
   totalWithoutCoupon: { type: String, required: false },
   totalWithCoupon: { type: String, required: false },
   addressURL: { type: String, required: false },
+   notes: { type: String, required: false },
 });
 
 module.exports = mongoose.model("Transaction", transactionSchema);

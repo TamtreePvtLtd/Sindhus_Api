@@ -53,6 +53,7 @@ exports.createPaymentIntent = async (req, res) => {
     totalWithoutCoupon,
     totalWithCoupon,
     addressURL,
+    notes
   } = req.body;
 
   console.log(req.body);
@@ -83,6 +84,7 @@ exports.createPaymentIntent = async (req, res) => {
       totalWithCoupon,
       totalWithoutCoupon,
       addressURL,
+      notes,
     });
 
     await transaction.save();
