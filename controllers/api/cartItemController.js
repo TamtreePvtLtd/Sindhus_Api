@@ -154,7 +154,7 @@ exports.createCartItems = async (req, res) => {
         <h3 style="border-bottom: 1px solid #eee; padding-bottom: 10px; color: #555;">Customer Information</h3>
         <div style="display: flex; justify-content: space-between;">
           <div style="width: 48%;">
-            <h4 style="margin-bottom: 10px;">Shipping Address</h4>
+            <h4 style="margin-bottom: 10px;">Customer Details:</h4>
             <p style="margin: 0; font-size: 14px; color: #777;">${
               paymentData.firstName
             } ${paymentData.lastName}</p>
@@ -173,11 +173,20 @@ exports.createCartItems = async (req, res) => {
         </div>
         
       </div>
-
+      
       <!-- Footer -->
-      <div style="text-align: center; padding-top: 20px;">
+      
+      <div style="text-align: center; padding-top: 10px;">
+      <h3 style="border-bottom: 1px solid #eee; color: #555;">Contact Us:</h3>
+       <p style="font-size: 14px; color: #777; margin-top: 10px;">
+           2700 E Eldorado Pkwy, #203, Little Elm, Texas - 75068<br>
+            <a href="tel:+19402792536" style="color: #038265;">+1 940-279-2536</a><br>
+          <a href="mailto:sindhuskitchen1@gmail.com" style="color: #038265;">sindhuskitchen1@gmail.com</a><br>
+          <a href="http://sindhuskitchen.com" style="color: #038265;">sindhuskitchen.com</a><br>
+        </p>
         <p style="font-size: 14px; color: #038265; font-family: 'clearface ts bold';"><b>Best Regards,<br>SINDHU'S</b></p>
         <img src="cid:logo"  alt="Sindhus Kitchen" style="width: 60px; height: 60px;" />
+       
       </div>
     </div>
   `,
@@ -418,7 +427,7 @@ exports.resendMail = async (req, res) => {
         <h3 style="border-bottom: 1px solid #eee; padding-bottom: 10px; color: #555;">Customer Information</h3>
         <div style="display: flex; justify-content: space-between;">
           <div style="width: 48%;">
-            <h4 style="margin-bottom: 10px;">Shipping Address</h4>
+            <h4 style="margin-bottom: 10px;">Customer Details:</h4>
             <p style="margin: 0; font-size: 14px; color: #777;">${
               paymentData.firstName
             } ${paymentData.lastName}</p>
@@ -439,9 +448,18 @@ exports.resendMail = async (req, res) => {
       </div>
 
       <!-- Footer -->
-      <div style="text-align: center; padding-top: 20px;">
+    <div style="text-align: center; padding-top: 10px;">
+      <h3 style="border-bottom: 1px solid #eee; color: #555;">Contact Us:</h3>
+       <p style="font-size: 14px; color: #777; margin-top: 10px;">
+           2700 E Eldorado Pkwy, #203, Little Elm, Texas - 75068<br>
+            <a href="tel:+19402792536" style="color: #038265;">+1 940-279-2536</a>
+          <a href="mailto:sindhuskitchen1@gmail.com" style="color: #038265;">sindhuskitchen1@gmail.com</a><br>
+          <a href="http://sindhuskitchen.com" style="color: #038265;">sindhuskitchen.com</a><br>
+          
+        </p>
         <p style="font-size: 14px; color: #038265; font-family: 'clearface ts bold';"><b>Best Regards,<br>SINDHU'S</b></p>
         <img src="cid:logo"  alt="Sindhus Kitchen" style="width: 60px; height: 60px;" />
+       
       </div>
     </div>
   `,
