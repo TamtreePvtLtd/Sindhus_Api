@@ -32,6 +32,7 @@ const productSchema = new mongoose.Schema(
     servingSizeDescription: String,
     ingredients: String,
     description: String,
+    availability: String,
     netWeight: Number,
     menu: {
       mainMenuIds: [{ type: mongoose.Schema.Types.ObjectId, ref: MenuModel }],

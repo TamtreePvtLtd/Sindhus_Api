@@ -84,5 +84,9 @@ router.get(
 );
 
 router.post("/getCateringBag", use(productController.getCateringBag));
+router.put(
+  "/updateAvailability/:id",
+  use(productControlleradmin.updateProductAvailability)
+);
 
 module.exports = router;
