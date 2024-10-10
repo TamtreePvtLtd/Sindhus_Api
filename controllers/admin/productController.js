@@ -70,6 +70,7 @@ exports.createProduct = async (req, res, next) => {
       posterURL: posterImageUrl,
       servingSizeDescription: formData.servingSizeDescription,
       ingredients: formData.ingredients,
+      availability: false,
     });
 
     res.json({
@@ -310,5 +311,36 @@ exports.adminGetAllProduct = async (req, res, next) => {
     res.json(req.paginationResult);
   } catch (error) {
     next(error);
+  }
+};
+
+exports.updateProductAvailability = async (req, res) => {
+  try {
+    const id = req.params.id; // Extract order ID from the URL
+    const availability = req.body;
+    console.log("req.body", req.body);
+
+    if (!id) {
+      return res.status(400).json({ error: "Product ID is required" });
+    }
+    if (availability === undefined) {
+      return res.status(400).json({ error: "Availability is required" });
+    }
+
+    // Find the order by ID and update the delivered status
+    const product = await ProductModel.findOneAndUpdate(
+      { _id: id }, // Match the orderNumber
+      availability, // Update the delivered status
+      { new: true } // Return the updated document
+    );
+
+    if (!product) {
+      return res.status(404).json({ error: "product not found" });
+    }
+
+    res.status(200).json(product);
+  } catch (error) {
+    console.error("Error updating order:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
