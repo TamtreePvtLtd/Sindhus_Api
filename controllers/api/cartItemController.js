@@ -91,12 +91,19 @@ exports.createCartItems = async (req, res) => {
       html: `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;">
       
+      <!-- Logo and Sindhu's Heading -->
+      <div style="text-align: center; padding-bottom: 10px;">
+      <h1 style="font-size: 28px; color: #038265; margin: 10px 0;">SINDHU'S</h1>
+        <img src="cid:logo" alt="Sindhus Kitchen" style="width: 80px; height: 80px; object-fit: contain;" />
+        
+      </div>
+
       <div style="text-align: center; padding-bottom: 20px;">
         <h2 style="color: #333;">Order Confirmation</h2>
-        <h3 > Order # : <strong>${orderNumber}</strong></h3>
+        <h3>Order # : <strong>${paymentData.orderNumber}</strong></h3>
         <p>Thank you for your purchase, <strong>${paymentData.firstName} ${
         paymentData.lastName
-      }</strong>&nbsp;!</p>
+      }</strong> &nbsp;!</p>
         <p>Your payment of $${(paymentData.amount / 100).toFixed(
           2
         )} was successful.</p>
@@ -122,14 +129,13 @@ exports.createCartItems = async (req, res) => {
                 <p style="margin: 5px 0; color: #777;">Quantity: ${
                   item.quantity
                 }</p>
-                 <p style="margin: 5px 0; font-size: 14px; color: #777;">Price: $${item.price.toFixed(
-                   2
-                 )}</p>
-                <p style="margin: 5px 0; font-size: 14px; color: #777;">Total: $${(
+                 <p style="margin: 5px 0; font-size: 14px; color: #777;">Price: $${parseFloat(
+                   item.price
+                 ).toFixed(2)}</p>
+                <p style="margin: 5px 0; font-size: 14px; color: #777;">Total: $${parseFloat(
                   item.quantity * item.price
                 ).toFixed(2)}</p>
               </div>
-             
             </div>
           `
           )
@@ -137,16 +143,14 @@ exports.createCartItems = async (req, res) => {
         
         <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
       
-        <div style="display: flex; justify-content: space-between;flex font-size: 16px; font-weight: bold; margin-top: 10px;">
-        <p>Total Quantity: <strong>${totalQuantity}</strong></p>
-          
-           
+        <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; margin-top: 10px;">
+          <p>Total Quantity: <strong>${totalQuantity}</strong></p>
         </div>
-        <div style="display: flex; justify-content: space-between;flex font-size: 16px; font-weight: bold; margin-top: 10px;">
-          <p>Total :<strong> $${(paymentData.amount / 100).toFixed(
+        <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; margin-top: 10px;">
+          <p>Total: <strong>$${(paymentData.amount / 100).toFixed(
             2
           )}</strong></p>
-          </div>
+        </div>
       </div>
 
       <!-- Customer Information Card -->
@@ -162,31 +166,27 @@ exports.createCartItems = async (req, res) => {
               paymentData.address
             }</p>
           </div>
-         <div style="margin-top: 20px;">
-          <h4 style="margin-bottom: 10px;">Delivery Date</h4>
-          <p style="margin: 5px 0; font-size: 14px; color: #777;">${formattedDeliveryDate}</p>
-          <h4 style="margin-bottom: 10px;">Shipping Method</h4>
-          <p style="margin: 0; font-size: 14px; color: #777;">${
-            paymentData.deliveryOption
-          }</p>
+          <div style="margin-top: 20px;">
+            <h4 style="margin-bottom: 10px;">Delivery Date</h4>
+            <p style="margin: 5px 0; font-size: 14px; color: #777;">${formattedDeliveryDate}</p>
+            <h4 style="margin-bottom: 10px;">Shipping Method</h4>
+            <p style="margin: 0; font-size: 14px; color: #777;">${
+              paymentData.deliveryOption
+            }</p>
+          </div>
         </div>
-        </div>
-        
       </div>
-      
+
       <!-- Footer -->
-      
       <div style="text-align: center; padding-top: 10px;">
-      <h3 style="border-bottom: 1px solid #eee; color: #555;">Contact Us:</h3>
-       <p style="font-size: 14px; color: #777; margin-top: 10px;">
+        <h3 style="border-bottom: 1px solid #eee; color: #555;">Contact Us:</h3>
+        <p style="font-size: 14px; color: #777; margin-top: 10px;">
            2700 E Eldorado Pkwy, #203, Little Elm, Texas - 75068<br>
-            <a href="tel:+19402792536" style="color: #038265;">+1 940-279-2536</a><br>
-          <a href="mailto:sindhuskitchen1@gmail.com" style="color: #038265;">sindhuskitchen1@gmail.com</a><br>
-          <a href="http://sindhuskitchen.com" style="color: #038265;">sindhuskitchen.com</a><br>
+           <a href="tel:+19402792536" style="color: #038265;">+1 940-279-2536</a><br>
+           <a href="mailto:sindhuskitchenusa@gmail.com" style="color: #038265;">sindhuskitchenusa@gmail.com</a><br>
+           <a href="http://sindhuskitchen.com" style="color: #038265;">sindhuskitchen.com</a><br>
         </p>
-        <p style="font-size: 14px; color: #038265; font-family: 'clearface ts bold';"><b>Best Regards,<br>SINDHU'S</b></p>
-        <img src="cid:logo"  alt="Sindhus Kitchen" style="width: 60px; height: 60px;" />
-       
+        <p style="font-size: 14px; color: #038265;"><b>Best Regards,<br>SINDHU'S</b></p>
       </div>
     </div>
   `,
@@ -198,6 +198,7 @@ exports.createCartItems = async (req, res) => {
         },
       ],
     };
+
 
     // Email content for the created email
     const createdMailOptions = {
@@ -357,19 +358,25 @@ exports.resendMail = async (req, res) => {
        <p><strong>Order Date:</strong> ${formattedCreatedAt}</p>
     `;
   // Email content for the user
-  const userMailOptions = {
-    from: process.env.EMAIL_USER,
-    to: paymentData.email,
-    subject: "Payment Confirmation",
-    html: `
+ const userMailOptions = {
+   from: process.env.EMAIL_USER,
+   to: paymentData.email,
+   subject: "Payment Confirmation",
+   html: `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;">
       
+      <!-- Logo and Sindhu's Heading -->
+      <div style="text-align: center; padding-bottom: 20px;">
+        <img src="cid:logo" alt="Sindhus Kitchen" style="width: 80px; height: 80px; object-fit: contain;" />
+        <h1 style="font-size: 28px; color: #038265; margin: 10px 0;">Sindhu's</h1>
+      </div>
+
       <div style="text-align: center; padding-bottom: 20px;">
         <h2 style="color: #333;">Order Confirmation</h2>
-        <h3 > Order # : <strong>${paymentData.orderNumber}</strong></h3>
+        <h3>Order # : <strong>${paymentData.orderNumber}</strong></h3>
         <p>Thank you for your purchase, <strong>${paymentData.firstName} ${
-      paymentData.lastName
-    }</strong>&nbsp;!</p>
+     paymentData.lastName
+   }</strong> &nbsp;!</p>
         <p>Your payment of $${(paymentData.amount / 100).toFixed(
           2
         )} was successful.</p>
@@ -402,7 +409,6 @@ exports.resendMail = async (req, res) => {
                   item.quantity * item.price
                 ).toFixed(2)}</p>
               </div>
-             
             </div>
           `
           )
@@ -410,16 +416,14 @@ exports.resendMail = async (req, res) => {
         
         <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
       
-        <div style="display: flex; justify-content: space-between;flex font-size: 16px; font-weight: bold; margin-top: 10px;">
-        <p>Total Quantity: <strong>${totalQuantity}</strong></p>
-          
-           
+        <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; margin-top: 10px;">
+          <p>Total Quantity: <strong>${totalQuantity}</strong></p>
         </div>
-        <div style="display: flex; justify-content: space-between;flex font-size: 16px; font-weight: bold; margin-top: 10px;">
-          <p>Total :<strong> $${(paymentData.amount / 100).toFixed(
+        <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; margin-top: 10px;">
+          <p>Total: <strong>$${(paymentData.amount / 100).toFixed(
             2
           )}</strong></p>
-          </div>
+        </div>
       </div>
 
       <!-- Customer Information Card -->
@@ -435,42 +439,39 @@ exports.resendMail = async (req, res) => {
               paymentData.address
             }</p>
           </div>
-         <div style="margin-top: 20px;">
-          <h4 style="margin-bottom: 10px;">Delivery Date</h4>
-          <p style="margin: 5px 0; font-size: 14px; color: #777;">${formattedDeliveryDate}</p>
-          <h4 style="margin-bottom: 10px;">Shipping Method</h4>
-          <p style="margin: 0; font-size: 14px; color: #777;">${
-            paymentData.deliveryOption
-          }</p>
+          <div style="margin-top: 20px;">
+            <h4 style="margin-bottom: 10px;">Delivery Date</h4>
+            <p style="margin: 5px 0; font-size: 14px; color: #777;">${formattedDeliveryDate}</p>
+            <h4 style="margin-bottom: 10px;">Shipping Method</h4>
+            <p style="margin: 0; font-size: 14px; color: #777;">${
+              paymentData.deliveryOption
+            }</p>
+          </div>
         </div>
-        </div>
-        
       </div>
 
       <!-- Footer -->
-    <div style="text-align: center; padding-top: 10px;">
-      <h3 style="border-bottom: 1px solid #eee; color: #555;">Contact Us:</h3>
-       <p style="font-size: 14px; color: #777; margin-top: 10px;">
+      <div style="text-align: center; padding-top: 10px;">
+        <h3 style="border-bottom: 1px solid #eee; color: #555;">Contact Us:</h3>
+        <p style="font-size: 14px; color: #777; margin-top: 10px;">
            2700 E Eldorado Pkwy, #203, Little Elm, Texas - 75068<br>
-            <a href="tel:+19402792536" style="color: #038265;">+1 940-279-2536</a>
-          <a href="mailto:sindhuskitchen1@gmail.com" style="color: #038265;">sindhuskitchen1@gmail.com</a><br>
-          <a href="http://sindhuskitchen.com" style="color: #038265;">sindhuskitchen.com</a><br>
-          
+           <a href="tel:+19402792536" style="color: #038265;">+1 940-279-2536</a><br>
+           <a href="mailto:sindhuskitchen1@gmail.com" style="color: #038265;">sindhuskitchen1@gmail.com</a><br>
+           <a href="http://sindhuskitchen.com" style="color: #038265;">sindhuskitchen.com</a><br>
         </p>
-        <p style="font-size: 14px; color: #038265; font-family: 'clearface ts bold';"><b>Best Regards,<br>SINDHU'S</b></p>
-        <img src="cid:logo"  alt="Sindhus Kitchen" style="width: 60px; height: 60px;" />
-       
+        <p style="font-size: 14px; color: #038265;"><b>Best Regards,<br>SINDHU'S</b></p>
       </div>
     </div>
   `,
-    attachments: [
-      {
-        filename: "logo.png",
-        path: logoPath,
-        cid: "logo", // same cid as in the html img src
-      },
-    ],
-  };
+   attachments: [
+     {
+       filename: "logo.png",
+       path: logoPath,
+       cid: "logo", // same cid as in the html img src
+     },
+   ],
+ };
+
 
   // Email content for the created email
   // const createdMailOptions = {
