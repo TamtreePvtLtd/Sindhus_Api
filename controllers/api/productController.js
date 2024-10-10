@@ -205,6 +205,7 @@ exports.getAllSnacksMenu = async (req, res, next) => {
           ...(subMenuId && {
             "menu.subMenuIds": new mongoose.Types.ObjectId(subMenuId),
           }),
+          availability: "true", 
         },
       },
       {
@@ -227,13 +228,13 @@ exports.getAllSnacksMenu = async (req, res, next) => {
         },
       },
     ]);
-    // console.log(JSON.stringify(snacksProducts, null, 2));
 
     res.json({ subMenus, products: snacksProducts[0]?.products || [] });
   } catch (error) {
     next(error);
   }
 };
+
 
 /**
  * @param {Request} req - The Express request object
