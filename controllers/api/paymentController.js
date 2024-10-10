@@ -59,7 +59,6 @@ exports.createPaymentIntent = async (req, res) => {
   console.log(req.body);
 
   try {
-    // const orderNumber = generateOrderNumber();
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency: "usd",
@@ -93,14 +92,11 @@ exports.createPaymentIntent = async (req, res) => {
       message: "Payment intent created and saved successfully",
       orderNumber,
     });
-    if (paymentIntent.status === "requires_payment_method") {
-    }
   } catch (error) {
-    if (!res.headersSent) {
-      console.error("Error creating payment intent:", error.message);
-      res.status(500).send({ error: error.message });
-    }
+    console.error("Error creating payment intent:", error.message);
+    res.status(500).send({ error: error.message });
   }
+
 };
 
 exports.deleteDeliveredPayment = async (req, res) => {
