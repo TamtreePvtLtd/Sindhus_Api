@@ -37,6 +37,29 @@ exports.getLastCreatedPayment = async (req, res) => {
   }
 };
 
+// Function to create client secret (called before confirming payment)
+exports.createClientSecret = async (req, res) => {
+  const { amount } = req.body;
+  try {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount,
+      currency: "usd",
+      payment_method_types: ["card"],
+    });
+  
+      console.log("paymentIntent", paymentIntent, amount);
+
+    res.status(200).send({
+      clientSecret: paymentIntent.client_secret,
+      message: "Payment intent created successfully",
+    });
+  } catch (error) {
+    console.error("Error creating payment intent:", error.message);
+    res.status(500).send({ error: error.message });
+  }
+};
+
+// Function to save payment details (called after payment is successful)
 exports.createPaymentIntent = async (req, res) => {
   const {
     firstName,
@@ -53,18 +76,15 @@ exports.createPaymentIntent = async (req, res) => {
     totalWithoutCoupon,
     totalWithCoupon,
     addressURL,
-    notes
+    notes,
+    paymentId,
+    status
   } = req.body;
 
   console.log(req.body);
 
   try {
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount,
-      currency: "usd",
-      payment_method_types: ["card"],
-    });
-
+    // Save the payment data in the database
     const transaction = new Payment({
       firstName,
       lastName,
@@ -73,9 +93,9 @@ exports.createPaymentIntent = async (req, res) => {
       email,
       deliveryOption,
       amount,
-      paymentId: paymentIntent.id,
+      paymentId,
       postalCode,
-      status: paymentIntent.status,
+      status,
       deliveryDate: new Date(deliveryDate),
       createdAt: new Date(),
       orderNumber,
@@ -87,17 +107,17 @@ exports.createPaymentIntent = async (req, res) => {
     });
 
     await transaction.save();
+
     res.status(200).send({
-      clientSecret: paymentIntent.client_secret,
-      message: "Payment intent created and saved successfully",
+      message: "Payment intent saved successfully",
       orderNumber,
     });
   } catch (error) {
-    console.error("Error creating payment intent:", error.message);
+    console.error("Error saving payment intent:", error.message);
     res.status(500).send({ error: error.message });
   }
-
 };
+
 
 exports.deleteDeliveredPayment = async (req, res) => {
   try {
