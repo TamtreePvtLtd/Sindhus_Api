@@ -46,7 +46,7 @@ exports.getLastCreatedPayment = async (req, res) => {
     );
 
     // Send the updated order number back to the frontend
-    res.status(200).send(newOrderNumber.toString());
+    res.status(200).send(orderNumber.toString());
   } catch (error) {
     res.status(500).json({ message: "Error retrieving the last item", error });
   }
