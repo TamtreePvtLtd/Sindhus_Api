@@ -28,18 +28,12 @@ exports.OrderNumber = async (req, res) => {
   try {
     const lastItem = await OrderNumber.findOne().sort({ order: -1 }).exec();
 
-    // console.log("lastItem", lastItem.orderNumber);
     if (!lastItem) {
       return res.status(404).json({ message: "No items found" });
     }
     const newOrderNumber = parseInt(lastItem.orderNumber, 10) + 1;
-    const order = new OrderNumber({
-      orderNumber: newOrderNumber, // Assuming your OrderNumber schema has this field
-    });
 
-    // await order.save();
-
-    res.status(200).send(newOrderNumber.toString());
+    res.status(200).send(lastItem.toString());
   } catch (error) {
     res.status(500).json({ message: "Error retrieving the last item", error });
   }
