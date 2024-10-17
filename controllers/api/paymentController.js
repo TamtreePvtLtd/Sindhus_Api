@@ -38,11 +38,12 @@ exports.OrderNumber = async (req, res) => {
     res.status(500).json({ message: "Error retrieving the last item", error });
   }
 };
+
 exports.getLastCreatedPayment = async (req, res) => {
   try {
-    const lastItem = await OrderNumber.findOne()
-      .sort({ orderNumber: -1 })
-      .exec();
+    const lastItem = await OrderNumber.findOne();
+    // .sort({ orderNumber: -1 })
+    // .exec();
 
     console.log("lastItem", lastItem);
 
@@ -53,8 +54,8 @@ exports.getLastCreatedPayment = async (req, res) => {
     const newOrderNumber = parseInt(lastItem.orderNumber, 10) + 1;
     console.log("newOrderNumber", newOrderNumber);
 
-    const updatedOrder = await OrderNumber.findOneAndUpdate(
-      { _id: lastItem._id }, // Find the latest document
+    await OrderNumber.findOneAndUpdate(
+      { orderNumber: lastItem.orderNumber }, // Find the latest document
       { $set: { orderNumber: newOrderNumber } }, // Update the orderNumber field
       { new: true } // Return the updated document
     );
