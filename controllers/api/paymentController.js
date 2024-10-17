@@ -41,7 +41,7 @@ exports.OrderNumber = async (req, res) => {
 
 exports.getLastCreatedPayment = async (req, res) => {
   try {
-    const lastItem = await OrderNumber.findOne();
+    const lastItem = await OrderNumber.find();
     // .sort({ orderNumber: -1 })
     // .exec();
 
@@ -51,11 +51,11 @@ exports.getLastCreatedPayment = async (req, res) => {
     if (!lastItem) {
       return res.status(404).json({ message: "No items found" });
     }
-    const newOrderNumber = parseInt(lastItem.orderNumber, 10) + 1;
+    const newOrderNumber = parseInt(lastItem[0].orderNumber, 10) + 1;
     console.log("newOrderNumber", newOrderNumber);
 
     await OrderNumber.findOneAndUpdate(
-      { orderNumber: lastItem.orderNumber }, // Find the latest document
+      { orderNumber: lastItem[0].orderNumber }, // Find the latest document
       { $set: { orderNumber: newOrderNumber } }, // Update the orderNumber field
       { new: true } // Return the updated document
     );

@@ -199,7 +199,6 @@ exports.createCartItems = async (req, res) => {
       ],
     };
 
-
     // Email content for the created email
     const createdMailOptions = {
       from: paymentData.email,
@@ -290,6 +289,7 @@ exports.updateDeliveryStatus = async (req, res) => {
 exports.getAllCartItem = async (req, res) => {
   try {
     const cartItems = await OrderItem.find().sort({ orderNumber: -1 }).exec();
+    console.log("cartItems", cartItems);
     res.status(200).json(cartItems);
   } catch (error) {
     res.status(500).json({ message: "Error fetching cart items", error });
@@ -358,11 +358,11 @@ exports.resendMail = async (req, res) => {
        <p><strong>Order Date:</strong> ${formattedCreatedAt}</p>
     `;
   // Email content for the user
- const userMailOptions = {
-   from: process.env.EMAIL_USER,
-   to: paymentData.email,
-   subject: "Payment Confirmation",
-   html: `
+  const userMailOptions = {
+    from: process.env.EMAIL_USER,
+    to: paymentData.email,
+    subject: "Payment Confirmation",
+    html: `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;">
       
       <!-- Logo and Sindhu's Heading -->
@@ -375,8 +375,8 @@ exports.resendMail = async (req, res) => {
         <h2 style="color: #333;">Order Confirmation</h2>
         <h3>Order # : <strong>${paymentData.orderNumber}</strong></h3>
         <p>Thank you for your purchase, <strong>${paymentData.firstName} ${
-     paymentData.lastName
-   }</strong> &nbsp;!</p>
+      paymentData.lastName
+    }</strong> &nbsp;!</p>
         <p>Your payment of $${(paymentData.amount / 100).toFixed(
           2
         )} was successful.</p>
@@ -463,15 +463,14 @@ exports.resendMail = async (req, res) => {
       </div>
     </div>
   `,
-   attachments: [
-     {
-       filename: "logo.png",
-       path: logoPath,
-       cid: "logo", // same cid as in the html img src
-     },
-   ],
- };
-
+    attachments: [
+      {
+        filename: "logo.png",
+        path: logoPath,
+        cid: "logo", // same cid as in the html img src
+      },
+    ],
+  };
 
   // Email content for the created email
   // const createdMailOptions = {
