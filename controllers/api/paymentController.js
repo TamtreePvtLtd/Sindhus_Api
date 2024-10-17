@@ -24,26 +24,9 @@ exports.getAllPayment = async (req, res) => {
   }
 };
 
-exports.OrderNumber = async (req, res) => {
-  try {
-    const lastItem = await OrderNumber.findOne().sort({ order: -1 }).exec();
-
-    if (!lastItem) {
-      return res.status(404).json({ message: "No items found" });
-    }
-    const newOrderNumber = parseInt(lastItem.orderNumber, 10) + 1;
-
-    res.status(200).send(lastItem.toString());
-  } catch (error) {
-    res.status(500).json({ message: "Error retrieving the last item", error });
-  }
-};
-
 exports.getLastCreatedPayment = async (req, res) => {
   try {
     const lastItem = await OrderNumber.find();
-    // .sort({ orderNumber: -1 })
-    // .exec();
 
     console.log("lastItem", lastItem);
 
@@ -60,7 +43,7 @@ exports.getLastCreatedPayment = async (req, res) => {
       { new: true } // Return the updated document
     );
 
-    res.status(200).send(newOrderNumber.toString());
+    res.status(200).send(lastItem[0].orderNumber);
   } catch (error) {
     res.status(500).json({ message: "Error retrieving the last item", error });
   }
