@@ -3,6 +3,7 @@
  * @typedef {import('express').Response} Response
  */
 const Payment = require("../../database/models/payment");
+const OrderNumber = require("../../database/models/orderNumber");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 /**
  * @param {Request} req - The Express request object
@@ -23,15 +24,44 @@ exports.getAllPayment = async (req, res) => {
   }
 };
 
-exports.getLastCreatedPayment = async (req, res) => {
+exports.OrderNumber = async (req, res) => {
   try {
-    const lastItem = await Payment.findOne().sort({ createdAt: -1 }).exec();
+    const lastItem = await OrderNumber.findOne().sort({ order: -1 }).exec();
 
-    console.log("lastItem", lastItem.orderNumber);
+    // console.log("lastItem", lastItem.orderNumber);
     if (!lastItem) {
       return res.status(404).json({ message: "No items found" });
     }
-    res.status(200).json(lastItem.orderNumber);
+    const newOrderNumber = parseInt(lastItem.orderNumber, 10) + 1;
+    const order = new OrderNumber({
+      orderNumber: newOrderNumber, // Assuming your OrderNumber schema has this field
+    });
+
+    // await order.save();
+
+    res.status(200).send(newOrderNumber.toString());
+  } catch (error) {
+    res.status(500).json({ message: "Error retrieving the last item", error });
+  }
+};
+exports.getLastCreatedPayment = async (req, res) => {
+  try {
+    const lastItem = await OrderNumber.findOne()
+      .sort({ OrderNumber: -1 })
+      .exec();
+
+    // console.log("lastItem", lastItem.orderNumber);
+    if (!lastItem) {
+      return res.status(404).json({ message: "No items found" });
+    }
+    const newOrderNumber = parseInt(lastItem.orderNumber, 10) + 1;
+    const order = new OrderNumber({
+      orderNumber: parseInt(lastItem.orderNumber, 10) + 2, // Assuming your OrderNumber schema has this field
+    });
+
+    await order.save();
+
+    res.status(200).send(newOrderNumber.toString());
   } catch (error) {
     res.status(500).json({ message: "Error retrieving the last item", error });
   }
@@ -53,7 +83,7 @@ exports.createPaymentIntent = async (req, res) => {
     totalWithoutCoupon,
     totalWithCoupon,
     addressURL,
-    notes
+    notes,
   } = req.body;
 
   console.log(req.body);
@@ -96,7 +126,6 @@ exports.createPaymentIntent = async (req, res) => {
     console.error("Error creating payment intent:", error.message);
     res.status(500).send({ error: error.message });
   }
-
 };
 
 exports.deleteDeliveredPayment = async (req, res) => {
