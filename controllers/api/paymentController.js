@@ -41,19 +41,23 @@ exports.OrderNumber = async (req, res) => {
 exports.getLastCreatedPayment = async (req, res) => {
   try {
     const lastItem = await OrderNumber.findOne()
-      .sort({ OrderNumber: -1 })
+      .sort({ orderNumber: -1 })
       .exec();
+
+    console.log("lastItem", lastItem);
 
     // console.log("lastItem", lastItem.orderNumber);
     if (!lastItem) {
       return res.status(404).json({ message: "No items found" });
     }
     const newOrderNumber = parseInt(lastItem.orderNumber, 10) + 1;
-    const order = new OrderNumber({
-      orderNumber: parseInt(lastItem.orderNumber, 10) + 2, // Assuming your OrderNumber schema has this field
-    });
+    console.log("newOrderNumber", newOrderNumber);
 
-    await order.save();
+    const updatedOrder = await OrderNumber.findOneAndUpdate(
+      { _id: lastItem._id }, // Find the latest document
+      { $set: { orderNumber: newOrderNumber } }, // Update the orderNumber field
+      { new: true } // Return the updated document
+    );
 
     res.status(200).send(newOrderNumber.toString());
   } catch (error) {
