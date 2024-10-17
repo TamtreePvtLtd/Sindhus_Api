@@ -26,24 +26,27 @@ exports.getAllPayment = async (req, res) => {
 
 exports.getLastCreatedPayment = async (req, res) => {
   try {
-    const lastItem = await OrderNumber.find();
-
-    console.log("lastItem", lastItem);
-
+    const lastItem = await OrderNumber.findOne()
+      .sort({ orderNumber: -1 })
+      .exec();
     // console.log("lastItem", lastItem.orderNumber);
     if (!lastItem) {
       return res.status(404).json({ message: "No items found" });
     }
-    const newOrderNumber = parseInt(lastItem[0].orderNumber, 10) + 1;
+
+    const orderNumber = lastItem.orderNumber;
+    const newOrderNumber = parseInt(orderNumber, 10) + 1;
     console.log("newOrderNumber", newOrderNumber);
 
+    // Update the orderNumber field
     await OrderNumber.findOneAndUpdate(
-      { orderNumber: lastItem[0].orderNumber }, // Find the latest document
-      { $set: { orderNumber: newOrderNumber } }, // Update the orderNumber field
-      { new: true } // Return the updated document
+      { orderNumber: lastItem.orderNumber },
+      { $set: { orderNumber: newOrderNumber.toString() } },
+      { new: true }
     );
 
-    res.status(200).send(lastItem[0].orderNumber);
+    // Send the updated order number back to the frontend
+    res.status(200).send(newOrderNumber.toString());
   } catch (error) {
     res.status(500).json({ message: "Error retrieving the last item", error });
   }
