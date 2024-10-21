@@ -194,7 +194,7 @@ exports.createCartItems = async (req, res) => {
         {
           filename: "logo.png",
           path: logoPath,
-          cid: "logo", // same cid as in the html img src
+          cid: "logo", 
         },
       ],
     };
@@ -256,7 +256,7 @@ exports.createCartItems = async (req, res) => {
 
 exports.updateDeliveryStatus = async (req, res) => {
   try {
-    const orderId = req.params.orderNumber; // Extract order ID from the URL
+    const orderId = req.params.orderNumber; 
     const deliveredStatus = req.body;
     console.log("req.body", req.body);
 
@@ -268,7 +268,6 @@ exports.updateDeliveryStatus = async (req, res) => {
       return res.status(400).json({ error: "Delivered status is required" });
     }
 
-    // Find the order by ID and update the delivered status
     const order = await OrderItem.findOneAndUpdate(
       { orderNumber: orderId }, // Match the orderNumber
       deliveredStatus, // Update the delivered status
