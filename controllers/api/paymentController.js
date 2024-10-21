@@ -3,6 +3,7 @@
  * @typedef {import('express').Response} Response
  */
 const Payment = require("../../database/models/payment");
+const OrderNumber = require("../../database/models/orderNumber");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 /**
  * @param {Request} req - The Express request object
@@ -25,13 +26,27 @@ exports.getAllPayment = async (req, res) => {
 
 exports.getLastCreatedPayment = async (req, res) => {
   try {
-    const lastItem = await Payment.findOne().sort({ createdAt: -1 }).exec();
-
-    console.log("lastItem", lastItem.orderNumber);
+    const lastItem = await OrderNumber.findOne()
+      .sort({ orderNumber: -1 })
+      .exec();
+    // console.log("lastItem", lastItem.orderNumber);
     if (!lastItem) {
       return res.status(404).json({ message: "No items found" });
     }
-    res.status(200).json(lastItem.orderNumber);
+
+    const orderNumber = lastItem.orderNumber;
+    const newOrderNumber = parseInt(orderNumber, 10) + 1;
+    console.log("newOrderNumber", newOrderNumber);
+
+    // Update the orderNumber field
+    await OrderNumber.findOneAndUpdate(
+      { orderNumber: lastItem.orderNumber },
+      { $set: { orderNumber: newOrderNumber.toString() } },
+      { new: true }
+    );
+
+    // Send the updated order number back to the frontend
+    res.status(200).send(orderNumber.toString());
   } catch (error) {
     res.status(500).json({ message: "Error retrieving the last item", error });
   }
@@ -53,7 +68,7 @@ exports.createPaymentIntent = async (req, res) => {
     totalWithoutCoupon,
     totalWithCoupon,
     addressURL,
-    notes
+    notes,
   } = req.body;
 
   console.log(req.body);
@@ -96,7 +111,6 @@ exports.createPaymentIntent = async (req, res) => {
     console.error("Error creating payment intent:", error.message);
     res.status(500).send({ error: error.message });
   }
-
 };
 
 exports.deleteDeliveredPayment = async (req, res) => {
