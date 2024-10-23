@@ -205,7 +205,6 @@ exports.getAllSnacksMenu = async (req, res, next) => {
           ...(subMenuId && {
             "menu.subMenuIds": new mongoose.Types.ObjectId(subMenuId),
           }),
-          availability: "true", 
         },
       },
       {
@@ -217,6 +216,7 @@ exports.getAllSnacksMenu = async (req, res, next) => {
               title: "$title",
               posterURL: "$posterURL",
               itemSizeWithPrice: "$itemSizeWithPrice",
+              availability: "$availability",
             },
           },
         },
