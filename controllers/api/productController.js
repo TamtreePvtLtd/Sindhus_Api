@@ -205,6 +205,7 @@ exports.getAllSnacksMenu = async (req, res, next) => {
           ...(subMenuId && {
             "menu.subMenuIds": new mongoose.Types.ObjectId(subMenuId),
           }),
+          hideProduct: "false",
         },
       },
       {
