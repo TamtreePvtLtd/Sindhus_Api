@@ -344,3 +344,36 @@ exports.updateProductAvailability = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+exports.updateHideProduct = async (req, res) => {
+  try {
+    const id = req.params.id; // Extract order ID from the URL
+    const hideProduct = req.body;
+    console.log("req.body", req.body);
+
+    if (!id) {
+      return res.status(400).json({ error: "Product ID is required" });
+    }
+    if (hideProduct === undefined) {
+      return res
+        .status(400)
+        .json({ error: "hideProduct Availability is required" });
+    }
+
+    // Find the order by ID and update the delivered status
+    const product = await ProductModel.findOneAndUpdate(
+      { _id: id }, // Match the orderNumber
+      hideProduct, // Update the delivered status
+      { new: true } // Return the updated document
+    );
+
+    if (!product) {
+      return res.status(404).json({ error: "product not found" });
+    }
+
+    res.status(200).json(product);
+  } catch (error) {
+    console.error("Error updating order:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
