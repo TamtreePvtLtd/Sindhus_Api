@@ -88,5 +88,9 @@ router.put(
   "/updateAvailability/:id",
   use(productControlleradmin.updateProductAvailability)
 );
+router.put(
+  "/updateHideProduct/:id",
+  use(productControlleradmin.updateHideProduct)
+);
 
 module.exports = router;
