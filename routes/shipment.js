@@ -11,5 +11,6 @@ router.post(
   "/createTransaction",
   use(shipmentController.createShipmentTransaction)
 );
+router.post("/validateAddress", use(shipmentController.validateAddress));
 
 module.exports = router;
