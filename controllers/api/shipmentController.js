@@ -43,7 +43,7 @@ exports.createShipment = async (req, res, next) => {
   try {
     const shipment = await Shippo.shipments.create({
       addressFrom: addressFrom,
-      addressTo: addressTo,
+      addressTo: toAddress,
       parcels: [parcel],
       async: false,
       carrierAccounts: [
@@ -92,7 +92,7 @@ exports.validateAddress = async (req, res, next) => {
     }
 
     const addressResult = await Shippo.addresses.create({
-      ...addressTo,
+      ...toAddress,
       validate: true,
     });
 
@@ -112,6 +112,7 @@ function _validateRequiredFields(obj, _requiredFields = []) {
     "state",
     "zip",
     "country",
+    "phone",
     ..._requiredFields,
   ];
 
