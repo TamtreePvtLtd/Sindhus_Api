@@ -6,7 +6,7 @@ const Payment = require("../../database/models/payment");
 const OrderNumber = require("../../database/models/orderNumber");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { createShipmentTransaction } = require("../api/shipmentController");
-
+const nodemailer = require("nodemailer");
 /**
  * @param {Request} req - The Express request object
  * @param {Response} res - The Express response object
@@ -53,7 +53,6 @@ exports.getLastCreatedPayment = async (req, res) => {
     res.status(500).json({ message: "Error retrieving the last item", error });
   }
 };
-
 
 exports.createPaymentIntent = async (req, res) => {
   const {
@@ -143,6 +142,76 @@ exports.createPaymentIntent = async (req, res) => {
   }
 };
 
+exports.updateShipmentDetails = async (req, res) => {
+  try {
+    const { orderNumber } = req.params;
+    const { trackingNumber, trackingUrl, firstName, email } = req.body;
+
+    if (!trackingNumber || !trackingUrl) {
+      return res.status(400).json({ error: "Tracking details required" });
+    }
+
+    const order = await Payment.findOne({ orderNumber });
+
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    order.trackingNumber = trackingNumber;
+    order.trackingUrl = trackingUrl;
+
+    if (firstName) order.firstName = firstName;
+    if (email) order.email = email;
+
+    await order.save();
+
+    const recipientName = order.firstName || "Customer";
+    const senderEmail = order.email || "noreply@sindhuskitchen.com";
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "dharaniya2000@gmail.com",
+        pass: "vcra utxy fbpx pnao",
+      },
+    });
+
+    const mailOptions = {
+      from: "dharaniya2000@gmail.com",
+      to: senderEmail,
+      subject: `Shipment Details for Order ${orderNumber}`,
+      html: `
+        <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
+          <h2 style="color: rgba(44, 62, 80, 1);">
+            Hi ${recipientName},
+          </h2>
+          <p>Great news! Your order has been shipped and is on its way 🎉</p>
+          <p><strong>Tracking Number:</strong> ${trackingNumber}</p>
+          <p>You can track your shipment in real time by clicking the button below:</p>
+          <p style="text-align: center;">
+            <a href="${trackingUrl}" 
+               style="background-color: #007bff; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 5px; display: inline-block;">
+              Track My Order
+            </a>
+          </p>
+          <p>If the button doesn’t work, you can also copy and paste this link into your browser:</p>
+          <p><a href="${trackingUrl}">${trackingUrl}</a></p>
+          <hr style="margin: 20px 0;" />
+          <p>Thank you for shopping with us!<br />— The sindhuskitchen Team</p>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res
+      .status(200)
+      .json({ message: "Shipment details updated & email sent", order });
+  } catch (error) {
+    console.error("Error updating shipment:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 
 exports.deleteDeliveredPayment = async (req, res) => {
   try {

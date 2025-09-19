@@ -12,4 +12,8 @@ router.delete(
   paymentController.deleteDeliveredPayment
 );
 router.put("/transaction/:orderNumber", paymentController.updatePaymentIntent);
+router.put(
+  "/:orderNumber/shipment",
+  paymentController.updateShipmentDetails
+);
 module.exports = router;
