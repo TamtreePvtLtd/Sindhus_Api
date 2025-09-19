@@ -120,7 +120,11 @@ exports.updateShipmentDetails = async (req, res) => {
     const { orderNumber } = req.params;
     const { trackingNumber, trackingUrl, firstName, email } = req.body;
 
-   
+   if (!trackingNumber || !trackingUrl) {
+     return res.status(400).json({ error: "Tracking details required" });
+   }
+
+   const order = await Payment.findOne({ orderNumber });
 
     if (!order) {
       return res.status(404).json({ error: "Order not found" });
