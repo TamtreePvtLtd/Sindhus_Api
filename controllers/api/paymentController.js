@@ -171,13 +171,13 @@ exports.updateShipmentDetails = async (req, res) => {
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: "dharaniya2000@gmail.com",
-        pass: "vcra utxy fbpx pnao",
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD,
       },
     });
 
     const mailOptions = {
-      from: "dharaniya2000@gmail.com",
+      from: process.env.EMAIL_USER,
       to: senderEmail,
       subject: `Shipment Details for Order ${orderNumber}`,
       html: `
