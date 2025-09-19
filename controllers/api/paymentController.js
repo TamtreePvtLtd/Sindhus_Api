@@ -83,7 +83,6 @@ exports.createPaymentIntent = async (req, res) => {
       payment_method_types: ["card"],
     });
 
- 
     const transaction = new Payment({
       firstName,
       lastName,
@@ -105,7 +104,6 @@ exports.createPaymentIntent = async (req, res) => {
       notes,
       rateObjId,
       carrierAccount,
-     
     });
 
     await transaction.save();
@@ -120,26 +118,17 @@ exports.updateShipmentDetails = async (req, res) => {
     const { orderNumber } = req.params;
     const { trackingNumber, trackingUrl, firstName, email } = req.body;
 
-   if (!trackingNumber || !trackingUrl) {
-     return res.status(400).json({ error: "Tracking details required" });
-   }
-
-   const order = await Payment.findOne({ orderNumber });
-
-    if (!order) {
-      return res.status(404).json({ error: "Order not found" });
+    if (!trackingNumber || !trackingUrl) {
+      return res.status(400).json({ error: "Tracking details required" });
     }
 
-    order.trackingNumber = trackingNumber;
-    order.trackingUrl = trackingUrl;
+    await Payment.findOneAndUpdate(
+      { orderNumber: orderNumber },
+      { $set: { trackingNumber: trackingNumber, trackingUrl: trackingUrl } }
+    );
 
-    if (firstName) order.firstName = firstName;
-    if (email) order.email = email;
-
-    await order.save();
-
-    const recipientName = order.firstName || "Customer";
-    const senderEmail = order.email || "noreply@sindhuskitchen.com";
+    const recipientName = firstName || "Customer";
+    const toEmail = email || "";
 
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -151,7 +140,7 @@ exports.updateShipmentDetails = async (req, res) => {
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: senderEmail,
+      to: toEmail,
       subject: `Shipment Details for Order ${orderNumber}`,
       html: `
         <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
