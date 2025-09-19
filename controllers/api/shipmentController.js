@@ -10,7 +10,8 @@ const Shippo = require("../../shippoClient.js");
  * @param {Response} res - The Express response object
  */
 exports.createShipment = async (req, res, next) => {
-  const toAddress = _buildAddress(req.body);
+  const { parcel, ..._toAddress } = req.body;
+  const toAddress = _buildAddress(_toAddress);
 
   const missingFields = _validateRequiredFields(toAddress);
 
@@ -29,15 +30,6 @@ exports.createShipment = async (req, res, next) => {
     country: "US",
     phone: "2347463487",
     email: "sindhuskitchen1@gmail.com",
-  };
-
-  const parcel = {
-    length: "5",
-    width: "5",
-    height: "5",
-    distanceUnit: "in",
-    weight: "2",
-    massUnit: "lb",
   };
 
   try {
