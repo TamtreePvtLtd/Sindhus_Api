@@ -5,6 +5,8 @@
 const Payment = require("../../database/models/payment");
 const OrderNumber = require("../../database/models/orderNumber");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const { createShipmentTransaction } = require("../api/shipmentController");
+
 /**
  * @param {Request} req - The Express request object
  * @param {Response} res - The Express response object
@@ -52,6 +54,7 @@ exports.getLastCreatedPayment = async (req, res) => {
   }
 };
 
+
 exports.createPaymentIntent = async (req, res) => {
   const {
     firstName,
@@ -69,17 +72,31 @@ exports.createPaymentIntent = async (req, res) => {
     totalWithCoupon,
     addressURL,
     notes,
+    rateObjId,
+    carrierAccount,
   } = req.body;
 
-  console.log(req.body);
-
   try {
+    // 1. Create payment intent
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency: "usd",
       payment_method_types: ["card"],
     });
 
+    // 2. If payment is successful, create shipment
+    let shipmentData = null;
+    if (
+      paymentIntent.status === "requires_payment_method" ||
+      paymentIntent.status === "requires_confirmation"
+    ) {
+      // Payment intent is still pending confirmation
+      shipmentData = null;
+    } else if (paymentIntent.status === "succeeded") {
+      shipmentData = await createShipmentTransaction(rateObjId, carrierAccount);
+    }
+
+    // 3. Save to DB
     const transaction = new Payment({
       firstName,
       lastName,
@@ -99,19 +116,33 @@ exports.createPaymentIntent = async (req, res) => {
       totalWithoutCoupon,
       addressURL,
       notes,
+      rateObjId,
+      carrierAccount,
+      ...(shipmentData && {
+        labelUrl: shipmentData.labelUrl,
+        shipmentObjectId: shipmentData.objectId,
+        trackingNumber: shipmentData.trackingNumber,
+        trackingUrlProvider: shipmentData.trackingUrlProvider,
+      }),
     });
 
     await transaction.save();
+
+    // 4. Return response
     res.status(200).send({
       clientSecret: paymentIntent.client_secret,
       message: "Payment intent created and saved successfully",
       orderNumber,
+      ...(shipmentData && {
+        shipment: shipmentData,
+      }),
     });
   } catch (error) {
     console.error("Error creating payment intent:", error.message);
     res.status(500).send({ error: error.message });
   }
 };
+
 
 exports.deleteDeliveredPayment = async (req, res) => {
   try {

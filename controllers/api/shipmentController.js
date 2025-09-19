@@ -20,8 +20,8 @@ exports.createShipment = async (req, res, next) => {
     });
   }
 
-  const addressFrom = {
-    name: `SINDHU'S'`,
+ const addressFrom = {
+    name: "SINDHU'S",
     street1: "2700 E Eldorado Pkwy #203",
     city: "Little Elm",
     state: "TX",
@@ -40,27 +40,24 @@ exports.createShipment = async (req, res, next) => {
     massUnit: "lb",
   };
 
-  try {
-    const shipment = await Shippo.shipments.create({
-      addressFrom: addressFrom,
-      addressTo: toAddress,
-      parcels: [parcel],
-      async: false,
-      carrierAccounts: [
-        process.env.SHIPPO_CARRIER_USPS_ID,
-        process.env.SHIPPO_CARRIER_UPS_ID,
-      ],
-    });
+  const shipment = await Shippo.shipments.create({
+    addressFrom,
+    addressTo: toAddress,
+    parcels: [parcel],
+    async: false,
+    carrierAccounts: [
+      process.env.SHIPPO_CARRIER_USPS_ID,
+      process.env.SHIPPO_CARRIER_UPS_ID,
+    ],
+  });
 
-    res.status(200).json(shipment);
-  } catch (error) {
-    next(error);
-  }
+  return shipment;
+
 };
 
-exports.createShipmentTransaction = async (req, res, next) => {
+// controllers/shipmentController.js
+exports.createShipmentTransaction = async (rateObjId, carrierAccount) => {
   try {
-    var { rateObjId, carrierAccount } = req.body;
     const transaction = await Shippo.transactions.create({
       rate: rateObjId,
       labelFileType: "PDF_4x6",
@@ -73,11 +70,17 @@ exports.createShipmentTransaction = async (req, res, next) => {
       },
     });
 
-    res.status(200).json(transaction);
+    return {
+      labelUrl: transaction.labelUrl,
+      objectId: transaction.objectId,
+      trackingNumber: transaction.trackingNumber,
+      trackingUrlProvider: transaction.trackingUrlProvider,
+    };
   } catch (error) {
-    next(error);
+    throw new Error(error.message || "Error creating shipment transaction");
   }
 };
+
 
 exports.validateAddress = async (req, res, next) => {
   try {
