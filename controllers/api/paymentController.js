@@ -83,19 +83,7 @@ exports.createPaymentIntent = async (req, res) => {
       payment_method_types: ["card"],
     });
 
-    // 2. If payment is successful, create shipment
-    let shipmentData = null;
-    if (
-      paymentIntent.status === "requires_payment_method" ||
-      paymentIntent.status === "requires_confirmation"
-    ) {
-      // Payment intent is still pending confirmation
-      shipmentData = null;
-    } else if (paymentIntent.status === "succeeded") {
-      shipmentData = await createShipmentTransaction(rateObjId, carrierAccount);
-    }
-
-    // 3. Save to DB
+ 
     const transaction = new Payment({
       firstName,
       lastName,
@@ -117,25 +105,10 @@ exports.createPaymentIntent = async (req, res) => {
       notes,
       rateObjId,
       carrierAccount,
-      ...(shipmentData && {
-        labelUrl: shipmentData.labelUrl,
-        shipmentObjectId: shipmentData.objectId,
-        trackingNumber: shipmentData.trackingNumber,
-        trackingUrlProvider: shipmentData.trackingUrlProvider,
-      }),
+     
     });
 
     await transaction.save();
-
-    // 4. Return response
-    res.status(200).send({
-      clientSecret: paymentIntent.client_secret,
-      message: "Payment intent created and saved successfully",
-      orderNumber,
-      ...(shipmentData && {
-        shipment: shipmentData,
-      }),
-    });
   } catch (error) {
     console.error("Error creating payment intent:", error.message);
     res.status(500).send({ error: error.message });
@@ -147,11 +120,7 @@ exports.updateShipmentDetails = async (req, res) => {
     const { orderNumber } = req.params;
     const { trackingNumber, trackingUrl, firstName, email } = req.body;
 
-    if (!trackingNumber || !trackingUrl) {
-      return res.status(400).json({ error: "Tracking details required" });
-    }
-
-    const order = await Payment.findOne({ orderNumber });
+   
 
     if (!order) {
       return res.status(404).json({ error: "Order not found" });
