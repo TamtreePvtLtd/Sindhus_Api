@@ -38,6 +38,7 @@ var paymentRouter = require("./routes/payment");
 var cartItem = require("./routes/cartItem");
 var coupenRouter = require("./routes/coupen");
 var distanceRouter = require("./routes/distance");
+var shipmentRouter = require("./routes/shipment");
 
 app.use((req, res, next) => {
   const allowedOriginsWithCredentials = [
@@ -87,6 +88,7 @@ app.use("/payment", paymentRouter);
 app.use("/cart", cartItem);
 app.use("/coupen", coupenRouter);
 app.use("/distance", distanceRouter);
+app.use("/shipment", shipmentRouter);
 
 //these middleware should at last but before error handlers
 app.use("*", (req, res, next) => {

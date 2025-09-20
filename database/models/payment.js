@@ -22,7 +22,13 @@ const transactionSchema = new mongoose.Schema({
   totalWithoutCoupon: { type: String, required: false },
   totalWithCoupon: { type: String, required: false },
   addressURL: { type: String, required: false },
-   notes: { type: String, required: false },
+  notes: { type: String, required: false },
+  rateObjId: { type: String, required: false },
+  carrierAccount: { type: String, required: false },
+  labelUrl: String,
+  shipmentObjectId: String,
+  trackingNumber: String,
+  trackingUrlProvider: String,
 });
 
 module.exports = mongoose.model("Transaction", transactionSchema);
