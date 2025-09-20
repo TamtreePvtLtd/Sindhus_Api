@@ -6,7 +6,7 @@ const Payment = require("../../database/models/payment");
 const OrderNumber = require("../../database/models/orderNumber");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { createShipmentTransaction } = require("../api/shipmentController");
-
+const nodemailer = require("nodemailer");
 /**
  * @param {Request} req - The Express request object
  * @param {Response} res - The Express response object
@@ -54,7 +54,6 @@ exports.getLastCreatedPayment = async (req, res) => {
   }
 };
 
-
 exports.createPaymentIntent = async (req, res) => {
   const {
     firstName,
@@ -84,19 +83,6 @@ exports.createPaymentIntent = async (req, res) => {
       payment_method_types: ["card"],
     });
 
-    // 2. If payment is successful, create shipment
-    let shipmentData = null;
-    if (
-      paymentIntent.status === "requires_payment_method" ||
-      paymentIntent.status === "requires_confirmation"
-    ) {
-      // Payment intent is still pending confirmation
-      shipmentData = null;
-    } else if (paymentIntent.status === "succeeded") {
-      shipmentData = await createShipmentTransaction(rateObjId, carrierAccount);
-    }
-
-    // 3. Save to DB
     const transaction = new Payment({
       firstName,
       lastName,
@@ -118,31 +104,76 @@ exports.createPaymentIntent = async (req, res) => {
       notes,
       rateObjId,
       carrierAccount,
-      ...(shipmentData && {
-        labelUrl: shipmentData.labelUrl,
-        shipmentObjectId: shipmentData.objectId,
-        trackingNumber: shipmentData.trackingNumber,
-        trackingUrlProvider: shipmentData.trackingUrlProvider,
-      }),
     });
 
     await transaction.save();
-
-    // 4. Return response
-    res.status(200).send({
-      clientSecret: paymentIntent.client_secret,
-      message: "Payment intent created and saved successfully",
-      orderNumber,
-      ...(shipmentData && {
-        shipment: shipmentData,
-      }),
-    });
   } catch (error) {
     console.error("Error creating payment intent:", error.message);
     res.status(500).send({ error: error.message });
   }
 };
 
+exports.updateShipmentDetails = async (req, res) => {
+  try {
+    const { orderNumber } = req.params;
+    const { trackingNumber, trackingUrl, firstName, email } = req.body;
+
+    if (!trackingNumber || !trackingUrl) {
+      return res.status(400).json({ error: "Tracking details required" });
+    }
+
+    await Payment.findOneAndUpdate(
+      { orderNumber: orderNumber },
+      { $set: { trackingNumber: trackingNumber, trackingUrl: trackingUrl } }
+    );
+
+    const recipientName = firstName || "Customer";
+    const toEmail = email || "";
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: toEmail,
+      subject: `Shipment Details for Order ${orderNumber}`,
+      html: `
+        <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
+          <h2 style="color: rgba(44, 62, 80, 1);">
+            Hi ${recipientName},
+          </h2>
+          <p>Great news! Your order has been shipped and is on its way 🎉</p>
+          <p><strong>Tracking Number:</strong> ${trackingNumber}</p>
+          <p>You can track your shipment in real time by clicking the button below:</p>
+          <p style="text-align: center;">
+            <a href="${trackingUrl}" 
+               style="background-color: #007bff; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 5px; display: inline-block;">
+              Track My Order
+            </a>
+          </p>
+          <p>If the button doesn’t work, you can also copy and paste this link into your browser:</p>
+          <p><a href="${trackingUrl}">${trackingUrl}</a></p>
+          <hr style="margin: 20px 0;" />
+          <p>Thank you for shopping with us!<br />— The sindhuskitchen Team</p>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res
+      .status(200)
+      .json({ message: "Shipment details updated & email sent", order });
+  } catch (error) {
+    console.error("Error updating shipment:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 
 exports.deleteDeliveredPayment = async (req, res) => {
   try {
