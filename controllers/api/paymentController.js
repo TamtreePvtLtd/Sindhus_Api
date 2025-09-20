@@ -107,6 +107,12 @@ exports.createPaymentIntent = async (req, res) => {
     });
 
     await transaction.save();
+
+    res.status(200).send({
+      clientSecret: paymentIntent.client_secret,
+      message: "Payment intent created and saved successfully",
+      orderNumber,
+    });
   } catch (error) {
     console.error("Error creating payment intent:", error.message);
     res.status(500).send({ error: error.message });
@@ -116,7 +122,7 @@ exports.createPaymentIntent = async (req, res) => {
 exports.updateShipmentDetails = async (req, res) => {
   try {
     const { orderNumber } = req.params;
-    const { trackingNumber, trackingUrl, firstName, email } = req.body;
+    const { trackingNumber, trackingUrl } = req.body;
 
     if (!trackingNumber || !trackingUrl) {
       return res.status(400).json({ error: "Tracking details required" });
@@ -130,9 +136,6 @@ exports.updateShipmentDetails = async (req, res) => {
 
     order.trackingNumber = trackingNumber;
     order.trackingUrl = trackingUrl;
-
-    if (firstName) order.firstName = firstName;
-    if (email) order.email = email;
 
     await order.save();
 
@@ -183,7 +186,6 @@ exports.updateShipmentDetails = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
 
 exports.deleteDeliveredPayment = async (req, res) => {
   try {
