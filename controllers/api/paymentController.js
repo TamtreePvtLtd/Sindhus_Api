@@ -122,13 +122,22 @@ exports.updateShipmentDetails = async (req, res) => {
       return res.status(400).json({ error: "Tracking details required" });
     }
 
-    await Payment.findOneAndUpdate(
-      { orderNumber: orderNumber },
-      { $set: { trackingNumber: trackingNumber, trackingUrl: trackingUrl } }
-    );
+    const order = await Payment.findOne({ orderNumber });
 
-    const recipientName = firstName || "Customer";
-    const toEmail = email || "";
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    order.trackingNumber = trackingNumber;
+    order.trackingUrl = trackingUrl;
+
+    if (firstName) order.firstName = firstName;
+    if (email) order.email = email;
+
+    await order.save();
+
+    const recipientName = order.firstName || "Customer";
+    const senderEmail = order.email || "noreply@sindhuskitchen.com";
 
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -140,7 +149,7 @@ exports.updateShipmentDetails = async (req, res) => {
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: toEmail,
+      to: senderEmail,
       subject: `Shipment Details for Order ${orderNumber}`,
       html: `
         <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
@@ -151,7 +160,7 @@ exports.updateShipmentDetails = async (req, res) => {
           <p><strong>Tracking Number:</strong> ${trackingNumber}</p>
           <p>You can track your shipment in real time by clicking the button below:</p>
           <p style="text-align: center;">
-            <a href="${trackingUrl}" 
+            <a href="${trackingUrl}"
                style="background-color: #007bff; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 5px; display: inline-block;">
               Track My Order
             </a>
@@ -174,6 +183,7 @@ exports.updateShipmentDetails = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 
 exports.deleteDeliveredPayment = async (req, res) => {
   try {
