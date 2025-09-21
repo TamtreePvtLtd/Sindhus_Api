@@ -182,7 +182,7 @@ exports.createCartItems = async (req, res) => {
         <h3 style="border-bottom: 1px solid #eee; color: #555;">Contact Us:</h3>
         <p style="font-size: 14px; color: #777; margin-top: 10px;">
            2700 E Eldorado Pkwy, #203, Little Elm, Texas - 75068<br>
-           <a href="tel:+19402792536" style="color: #038265;">+1 940-279-2536</a><br>
+           <a href="tel:+12347463487" style="color: #038265;">+1-234-746-3487</a><br>
            <a href="mailto:sindhuskitchenusa@gmail.com" style="color: #038265;">sindhuskitchenusa@gmail.com</a><br>
            <a href="http://sindhuskitchen.com" style="color: #038265;">sindhuskitchen.com</a><br>
         </p>
@@ -194,7 +194,7 @@ exports.createCartItems = async (req, res) => {
         {
           filename: "logo.png",
           path: logoPath,
-          cid: "logo", 
+          cid: "logo",
         },
       ],
     };
@@ -256,7 +256,7 @@ exports.createCartItems = async (req, res) => {
 
 exports.updateDeliveryStatus = async (req, res) => {
   try {
-    const orderId = req.params.orderNumber; 
+    const orderId = req.params.orderNumber;
     const deliveredStatus = req.body;
     console.log("req.body", req.body);
 
@@ -360,7 +360,7 @@ exports.resendMail = async (req, res) => {
   const userMailOptions = {
     from: process.env.EMAIL_USER,
     to: paymentData.email,
-    subject: "Payment Confirmation",
+    subject: "Great news! Your order has been received",
     html: `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;">
       
@@ -454,7 +454,7 @@ exports.resendMail = async (req, res) => {
         <h3 style="border-bottom: 1px solid #eee; color: #555;">Contact Us:</h3>
         <p style="font-size: 14px; color: #777; margin-top: 10px;">
            2700 E Eldorado Pkwy, #203, Little Elm, Texas - 75068<br>
-           <a href="tel:+19402792536" style="color: #038265;">+1 940-279-2536</a><br>
+           <a href="tel:+12347463487" style="color: #038265;">+1-234-746-3487</a><br>
            <a href="mailto:sindhuskitchen1@gmail.com" style="color: #038265;">sindhuskitchen1@gmail.com</a><br>
            <a href="http://sindhuskitchen.com" style="color: #038265;">sindhuskitchen.com</a><br>
         </p>
