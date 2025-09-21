@@ -73,6 +73,7 @@ exports.createPaymentIntent = async (req, res) => {
     notes,
     rateObjId,
     carrierAccount,
+    shippingAmount,
   } = req.body;
 
   try {
@@ -104,6 +105,7 @@ exports.createPaymentIntent = async (req, res) => {
       notes,
       rateObjId,
       carrierAccount,
+      shippingAmount
     });
 
     await transaction.save();
