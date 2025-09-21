@@ -27,6 +27,7 @@ const transactionSchema = new mongoose.Schema({
   carrierAccount: { type: String, required: false },
   trackingNumber: { type: String, default: "" },
   trackingUrl: { type: String, default: "" },
+  shippingAmount: { type: Number, required: false },
 });
 
 module.exports = mongoose.model("Transaction", transactionSchema);

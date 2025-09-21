@@ -147,10 +147,16 @@ exports.createCartItems = async (req, res) => {
           <p>Total Quantity: <strong>${totalQuantity}</strong></p>
         </div>
         <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; margin-top: 10px;">
+          <p>Shipping Amount: <strong>$${parseFloat(
+            paymentData.shippingAmount
+          ).toFixed(2)}</strong></p>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; margin-top: 10px;">
           <p>Total: <strong>$${(paymentData.amount / 100).toFixed(
             2
           )}</strong></p>
         </div>
+         
       </div>
 
       <!-- Customer Information Card -->
@@ -194,7 +200,7 @@ exports.createCartItems = async (req, res) => {
         {
           filename: "logo.png",
           path: logoPath,
-          cid: "logo", 
+          cid: "logo",
         },
       ],
     };
@@ -208,27 +214,35 @@ exports.createCartItems = async (req, res) => {
         <h3>New order received:</h3>
         <p>Order Details:</p>
        ${paymentDataHtml}
-        <h3>Ordered Items:</h3>
-        <table border="1" cellpadding="5" cellspacing="0">
-          <thead>
-            <tr>
-             <th>Image</th>
-             <th>Item Name</th>
-              <th>Size</th>
-              <th>Quantity</th>
-              <th>Unit Price</th>
-              <th>Total Price</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${cartItemsTable}
-              <tr>
-              <td colspan="5" style="text-align: right; font-weight: bold;">Total Amount with Tax:</td>
-        <td style="font-weight: bold;">$${(paymentData.amount / 100).toFixed(
-          2
-        )}</td>
-          </tbody>
-        </table>
+       <h3>Ordered Items:</h3>
+<table border="1" cellpadding="5" cellspacing="0">
+  <thead>
+    <tr>
+      <th>Image</th>
+      <th>Item Name</th>
+      <th>Size</th>
+      <th>Quantity</th>
+      <th>Unit Price</th>
+      <th>Total Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    ${cartItemsTable}
+    <!-- Add shipping amount row -->
+    <tr>
+      <td colspan="5" style="text-align: right; font-weight: bold;">Shipping:</td>
+     <td style="font-weight: bold;">$${parseFloat(
+       paymentData.shippingAmount
+     ).toFixed(2)}</td>
+    </tr>
+    <tr>
+      <td colspan="5" style="text-align: right; font-weight: bold;">Total Amount:</td>
+      <td style="font-weight: bold;">$${(paymentData.amount / 100).toFixed(
+        2
+      )}</td>
+    </tr>
+  </tbody>
+</table>
       `,
     };
 
@@ -256,7 +270,7 @@ exports.createCartItems = async (req, res) => {
 
 exports.updateDeliveryStatus = async (req, res) => {
   try {
-    const orderId = req.params.orderNumber; 
+    const orderId = req.params.orderNumber;
     const deliveredStatus = req.body;
     console.log("req.body", req.body);
 
