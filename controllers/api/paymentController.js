@@ -153,11 +153,11 @@ exports.updateShipmentDetails = async (req, res) => {
     });
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: `"SINDHU'S" ${process.env.EMAIL_USER}`,
       to: senderEmail,
-      subject: `Shipment Details for Order ${orderNumber}`,
+      subject: `Your order has been shipped!`,
       html: `
-        <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
+        <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 8px; background-color: #f9f9f9;">
           <h2 style="color: rgba(44, 62, 80, 1);">
             Hi ${recipientName},
           </h2>
@@ -166,14 +166,23 @@ exports.updateShipmentDetails = async (req, res) => {
           <p>You can track your shipment in real time by clicking the button below:</p>
           <p style="text-align: center;">
             <a href="${trackingUrl}"
-               style="background-color: #007bff; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 5px; display: inline-block;">
+               style="background-color: #038265; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 5px; display: inline-block;">
               Track My Order
             </a>
           </p>
           <p>If the button doesn’t work, you can also copy and paste this link into your browser:</p>
           <p><a href="${trackingUrl}">${trackingUrl}</a></p>
-          <hr style="margin: 20px 0;" />
-          <p>Thank you for shopping with us!<br />— The sindhuskitchen Team</p>
+          <!-- Footer -->
+          <div style="text-align: center; padding-top: 10px;">
+            <h3 style="border-bottom: 1px solid #eee; color: #555;">Contact Us:</h3>
+            <p style="font-size: 14px; color: #777; margin-top: 10px;">
+              2700 E Eldorado Pkwy, #203, Little Elm, Texas - 75068<br>
+              <a href="tel:+12347463487" style="color: #038265;">+1-234-746-3487</a><br>
+              <a href="mailto:sindhuskitchen1@gmail.com" style="color: #038265;">sindhuskitchen1@gmail.com</a><br>
+              <a href="http://sindhuskitchen.com" style="color: #038265;">sindhuskitchen.com</a><br>
+            </p>
+            <p style="font-size: 14px; color: #038265;"><b>Best Regards,<br>SINDHU'S</b></p>
+          </div>
         </div>
       `,
     };
