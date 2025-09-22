@@ -85,9 +85,9 @@ exports.createCartItems = async (req, res) => {
     `;
     // Email content for the user
     const userMailOptions = {
-      from: process.env.EMAIL_USER,
+      from: `"SINDHU'S" ${process.env.EMAIL_USER}`,
       to: paymentData.email,
-      subject: "Payment Confirmation",
+      subject: "Great news! Your order has been received",
       html: `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;">
       
@@ -207,7 +207,7 @@ exports.createCartItems = async (req, res) => {
 
     // Email content for the created email
     const createdMailOptions = {
-      from: paymentData.email,
+      from: `"SINDHU'S" ${paymentData.email}`,
       to: process.env.EMAIL_USER,
       subject: "New Order Received",
       html: `
@@ -372,7 +372,7 @@ exports.resendMail = async (req, res) => {
     `;
   // Email content for the user
   const userMailOptions = {
-    from: process.env.EMAIL_USER,
+    from: `"SINDHU'S" ${process.env.EMAIL_USER}`,
     to: paymentData.email,
     subject: "Great news! Your order has been received",
     html: `
