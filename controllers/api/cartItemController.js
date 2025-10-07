@@ -85,9 +85,9 @@ exports.createCartItems = async (req, res) => {
     `;
     // Email content for the user
     const userMailOptions = {
-      from: process.env.EMAIL_USER,
+      from: `"SINDHU'S" ${process.env.EMAIL_USER}`,
       to: paymentData.email,
-      subject: "Payment Confirmation",
+      subject: "Great news! Your order has been received",
       html: `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;">
       
@@ -147,10 +147,16 @@ exports.createCartItems = async (req, res) => {
           <p>Total Quantity: <strong>${totalQuantity}</strong></p>
         </div>
         <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; margin-top: 10px;">
+          <p>Shipping Amount: <strong>$${parseFloat(
+            paymentData.shippingAmount
+          ).toFixed(2)}</strong></p>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; margin-top: 10px;">
           <p>Total: <strong>$${(paymentData.amount / 100).toFixed(
             2
           )}</strong></p>
         </div>
+         
       </div>
 
       <!-- Customer Information Card -->
@@ -182,7 +188,7 @@ exports.createCartItems = async (req, res) => {
         <h3 style="border-bottom: 1px solid #eee; color: #555;">Contact Us:</h3>
         <p style="font-size: 14px; color: #777; margin-top: 10px;">
            2700 E Eldorado Pkwy, #203, Little Elm, Texas - 75068<br>
-           <a href="tel:+19402792536" style="color: #038265;">+1 940-279-2536</a><br>
+           <a href="tel:+12347463487" style="color: #038265;">+1-234-746-3487</a><br>
            <a href="mailto:sindhuskitchenusa@gmail.com" style="color: #038265;">sindhuskitchenusa@gmail.com</a><br>
            <a href="http://sindhuskitchen.com" style="color: #038265;">sindhuskitchen.com</a><br>
         </p>
@@ -194,41 +200,49 @@ exports.createCartItems = async (req, res) => {
         {
           filename: "logo.png",
           path: logoPath,
-          cid: "logo", 
+          cid: "logo",
         },
       ],
     };
 
     // Email content for the created email
     const createdMailOptions = {
-      from: paymentData.email,
+      from: `"SINDHU'S" ${paymentData.email}`,
       to: process.env.EMAIL_USER,
       subject: "New Order Received",
       html: `
         <h3>New order received:</h3>
         <p>Order Details:</p>
        ${paymentDataHtml}
-        <h3>Ordered Items:</h3>
-        <table border="1" cellpadding="5" cellspacing="0">
-          <thead>
-            <tr>
-             <th>Image</th>
-             <th>Item Name</th>
-              <th>Size</th>
-              <th>Quantity</th>
-              <th>Unit Price</th>
-              <th>Total Price</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${cartItemsTable}
-              <tr>
-              <td colspan="5" style="text-align: right; font-weight: bold;">Total Amount with Tax:</td>
-        <td style="font-weight: bold;">$${(paymentData.amount / 100).toFixed(
-          2
-        )}</td>
-          </tbody>
-        </table>
+       <h3>Ordered Items:</h3>
+<table border="1" cellpadding="5" cellspacing="0">
+  <thead>
+    <tr>
+      <th>Image</th>
+      <th>Item Name</th>
+      <th>Size</th>
+      <th>Quantity</th>
+      <th>Unit Price</th>
+      <th>Total Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    ${cartItemsTable}
+    <!-- Add shipping amount row -->
+    <tr>
+      <td colspan="5" style="text-align: right; font-weight: bold;">Shipping:</td>
+     <td style="font-weight: bold;">$${parseFloat(
+       paymentData.shippingAmount
+     ).toFixed(2)}</td>
+    </tr>
+    <tr>
+      <td colspan="5" style="text-align: right; font-weight: bold;">Total Amount:</td>
+      <td style="font-weight: bold;">$${(paymentData.amount / 100).toFixed(
+        2
+      )}</td>
+    </tr>
+  </tbody>
+</table>
       `,
     };
 
@@ -256,7 +270,7 @@ exports.createCartItems = async (req, res) => {
 
 exports.updateDeliveryStatus = async (req, res) => {
   try {
-    const orderId = req.params.orderNumber; 
+    const orderId = req.params.orderNumber;
     const deliveredStatus = req.body;
     console.log("req.body", req.body);
 
@@ -358,9 +372,9 @@ exports.resendMail = async (req, res) => {
     `;
   // Email content for the user
   const userMailOptions = {
-    from: process.env.EMAIL_USER,
+    from: `"SINDHU'S" ${process.env.EMAIL_USER}`,
     to: paymentData.email,
-    subject: "Payment Confirmation",
+    subject: "Great news! Your order has been received",
     html: `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;">
       
@@ -454,7 +468,7 @@ exports.resendMail = async (req, res) => {
         <h3 style="border-bottom: 1px solid #eee; color: #555;">Contact Us:</h3>
         <p style="font-size: 14px; color: #777; margin-top: 10px;">
            2700 E Eldorado Pkwy, #203, Little Elm, Texas - 75068<br>
-           <a href="tel:+19402792536" style="color: #038265;">+1 940-279-2536</a><br>
+           <a href="tel:+12347463487" style="color: #038265;">+1-234-746-3487</a><br>
            <a href="mailto:sindhuskitchen1@gmail.com" style="color: #038265;">sindhuskitchen1@gmail.com</a><br>
            <a href="http://sindhuskitchen.com" style="color: #038265;">sindhuskitchen.com</a><br>
         </p>

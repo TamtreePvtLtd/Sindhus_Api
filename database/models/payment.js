@@ -25,10 +25,10 @@ const transactionSchema = new mongoose.Schema({
   notes: { type: String, required: false },
   rateObjId: { type: String, required: false },
   carrierAccount: { type: String, required: false },
-  labelUrl: String,
-  shipmentObjectId: String,
-  trackingNumber: String,
-  trackingUrlProvider: String,
+  trackingNumber: { type: String, default: "" },
+  trackingUrl: { type: String, default: "" },
+  shippingAmount: { type: Number, required: false },
+  taxAmount: Number,
 });
 
 module.exports = mongoose.model("Transaction", transactionSchema);

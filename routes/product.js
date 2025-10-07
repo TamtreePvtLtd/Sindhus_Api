@@ -93,4 +93,6 @@ router.put(
   use(productControlleradmin.updateHideProduct)
 );
 
+router.get("/getCartProducts", productController.getCartProducts);
+
 module.exports = router;
