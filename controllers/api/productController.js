@@ -209,6 +209,9 @@ exports.getAllSnacksMenu = async (req, res, next) => {
         },
       },
       {
+        $sort: { _id: -1 },
+      },
+      {
         $group: {
           _id: "$mainMenus.subMenus._id",
           products: {
@@ -288,3 +291,70 @@ exports.getCateringBag = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getCartProducts = async (req, res, next) => {
+  try {
+    // Get items from query string
+    const items = req.query.items ? JSON.parse(req.query.items) : [];
+    if (items.length === 0) {
+      return res.json([]);
+    }
+
+    const ids = items.map((i) => i.id);
+
+    const products = await ProductModel.find({ _id: { $in: ids } });
+
+    const productInfo = products.map((product) => {
+      // Find the price based on the size from the cart item
+      const cartItem = items.find((item) => item.id === product._id.toString());
+      let price = 0;
+      let imageUrl = product.posterURL; // Use posterURL as imageUrl
+
+      if (cartItem) {
+        // Look for price in different size-price arrays
+        const size = cartItem.size;
+
+        // Check itemSizeWithPrice first
+        const itemSizePrice = product.itemSizeWithPrice.find(
+          (item) => item.size === size
+        );
+        if (itemSizePrice) {
+          price = itemSizePrice.price;
+        }
+        // Check cateringMenuSizeWithPrice
+        else if (product.cateringMenuSizeWithPrice) {
+          const cateringPrice = product.cateringMenuSizeWithPrice.find(
+            (item) => item.size === size
+          );
+          if (cateringPrice) {
+            price = cateringPrice.price;
+          }
+        }
+        // Check dailyMenuSizeWithPrice
+        else if (product.dailyMenuSizeWithPrice) {
+          const dailyPrice = product.dailyMenuSizeWithPrice.find(
+            (item) => item.size === size
+          );
+          if (dailyPrice) {
+            price = dailyPrice.price;
+          }
+        }
+      }
+
+      return {
+        _id: product._id,
+        title: product.title,
+        imageUrl: imageUrl, // Using posterURL as imageUrl
+        price: price, // Size-specific price
+      };
+    });
+
+    console.log("📤 Sending product info:", productInfo);
+    res.json(productInfo);
+  } catch (error) {
+    console.error("💥 Error in getCartProducts:", error);
+    next(error);
+  }
+};
+
+
