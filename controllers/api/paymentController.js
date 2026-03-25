@@ -3,6 +3,7 @@
  * @typedef {import('express').Response} Response
  */
 const Payment = require("../../database/models/payment");
+const payment = require("../../database/models/payment");
 const OrderNumber = require("../../database/models/orderNumber");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { createShipmentTransaction } = require("../api/shipmentController");
